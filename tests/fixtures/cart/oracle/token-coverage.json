@@ -1,0 +1,535 @@
+{
+  "contract": "cart-protocol-v1",
+  "fixtureVersion": 1,
+  "purpose": "Session-token coverage and freshness-evidence fixtures, including missing causal dependencies, certificate holes and an already populated stale cache.",
+  "freshnessWindowUs": 2000000,
+  "configuredOrigins": ["us-west", "eu-central", "ap-northeast"],
+  "sku": "sku-1",
+  "cases": [
+    {
+      "id": "healthy-complete-read",
+      "healthy": true,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 900000
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-a", "op-b"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 3000000, "ids": ["op-a", "op-b"] },
+            { "origin": "eu-central", "cutUs": 3000000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 3000000, "ids": [] }
+          ],
+          "deliveryUs": 3000000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "ok",
+          "quantityBySku": { "sku-1": 3 },
+          "missingIds": [],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a", "op-b"]
+        }
+      ]
+    },
+    {
+      "id": "freshness-window-exact-boundary",
+      "healthy": true,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 900000
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-a", "op-b"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 900000, "ids": ["op-a", "op-b"] },
+            { "origin": "eu-central", "cutUs": 900000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 900000, "ids": [] }
+          ],
+          "deliveryUs": 2900000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "ok",
+          "quantityBySku": { "sku-1": 3 },
+          "missingIds": [],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a", "op-b"]
+        }
+      ],
+      "note": "Delivery 2,900,000 - 2,000,000 = 900,000; a cut exactly at the boundary is eligible."
+    },
+    {
+      "id": "expired-freshness-evidence",
+      "healthy": true,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 900000
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-a", "op-b"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 899999, "ids": ["op-a", "op-b"] },
+            { "origin": "eu-central", "cutUs": 900000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 900000, "ids": [] }
+          ],
+          "deliveryUs": 2900000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "temporarily-unavailable",
+          "quantityBySku": { "sku-1": 3 },
+          "missingIds": [],
+          "expiredOrigins": ["us-west"],
+          "outgoingTokenIds": ["op-a", "op-b"]
+        }
+      ],
+      "note": "One microsecond past the boundary is expired; the cart contents are still correct, but the evidence is not."
+    },
+    {
+      "id": "token-hole-with-complete-certificate",
+      "healthy": true,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 900000
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-b"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 3000000, "ids": ["op-a", "op-b"] },
+            { "origin": "eu-central", "cutUs": 3000000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 3000000, "ids": [] }
+          ],
+          "deliveryUs": 3000000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "incomplete",
+          "quantityBySku": {},
+          "missingIds": ["op-a"],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a", "op-b"]
+        }
+      ],
+      "note": "Certificate ids {op-a, op-b} but V holds only op-b. Maximum sequence coverage is not completeness."
+    },
+    {
+      "id": "stale-populated-cache",
+      "healthy": true,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2500000
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-a"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 3000000, "ids": ["op-a", "op-b"] },
+            { "origin": "eu-central", "cutUs": 3000000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 3000000, "ids": [] }
+          ],
+          "deliveryUs": 3000000,
+          "servedFromCache": true
+        },
+        {
+          "coveredIds": ["op-a", "op-b"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 3000000, "ids": ["op-a", "op-b"] },
+            { "origin": "eu-central", "cutUs": 3000000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 3000000, "ids": [] }
+          ],
+          "deliveryUs": 3000000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "incomplete",
+          "quantityBySku": { "sku-1": 2 },
+          "missingIds": ["op-b"],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a"]
+        },
+        {
+          "status": "ok",
+          "quantityBySku": { "sku-1": 3 },
+          "missingIds": [],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a", "op-b"]
+        }
+      ],
+      "note": "The cache was already populated with quantity 2. A cache hit that omits op-b must repair before claiming success."
+    },
+    {
+      "id": "missing-causal-dependency-in-view",
+      "healthy": true,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        },
+        {
+          "id": "op-d",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "change",
+          "quantity": 3,
+          "observedContext": ["op-missing-dep"],
+          "commitAtUs": 1000000
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-a", "op-d"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 3000000, "ids": ["op-a", "op-d"] },
+            { "origin": "eu-central", "cutUs": 3000000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 3000000, "ids": [] }
+          ],
+          "deliveryUs": 3000000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "incomplete",
+          "quantityBySku": { "sku-1": 2 },
+          "missingIds": ["op-missing-dep"],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a", "op-d"]
+        }
+      ],
+      "note": "A covered operation whose observed context is absent cannot form a causally closed view; quantity stays at the applicable 2."
+    },
+    {
+      "id": "newer-operations-allowed",
+      "healthy": true,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2999999
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-a", "op-b"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 1000000, "ids": ["op-a"] },
+            { "origin": "eu-central", "cutUs": 1000000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 1000000, "ids": [] }
+          ],
+          "deliveryUs": 3000000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "ok",
+          "quantityBySku": { "sku-1": 3 },
+          "missingIds": [],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a", "op-b"]
+        }
+      ],
+      "note": "The two-second rule is a lower bound; including newer causally closed operations is allowed."
+    },
+    {
+      "id": "affected-partition-read-allowed",
+      "healthy": false,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-a"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 1000000, "ids": ["op-a"] },
+            { "origin": "eu-central", "cutUs": 1000000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 1000000, "ids": [] }
+          ],
+          "deliveryUs": 10000000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "ok",
+          "quantityBySku": { "sku-1": 2 },
+          "missingIds": [],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a"]
+        }
+      ],
+      "note": "An affected read may relax the global two-second rule but never token coverage or causal closure."
+    },
+    {
+      "id": "affected-partition-token-still-required",
+      "healthy": false,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "ap-northeast", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 900000
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-a"],
+          "tokenIds": ["op-a", "op-b"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 1000000, "ids": ["op-a"] },
+            { "origin": "eu-central", "cutUs": 1000000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 1000000, "ids": [] }
+          ],
+          "deliveryUs": 10000000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "incomplete",
+          "quantityBySku": { "sku-1": 2 },
+          "missingIds": ["op-b"],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a", "op-b"]
+        }
+      ],
+      "note": "Token coverage is never suspended, even for an incident-affected read."
+    },
+    {
+      "id": "idle-origin-empty-certificate-required",
+      "healthy": true,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 900000
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-a", "op-b"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 3000000, "ids": ["op-a", "op-b"] },
+            { "origin": "eu-central", "cutUs": 3000000, "ids": [] }
+          ],
+          "deliveryUs": 3000000,
+          "servedFromCache": false
+        },
+        {
+          "coveredIds": ["op-a", "op-b"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 3000000, "ids": ["op-a", "op-b"] },
+            { "origin": "eu-central", "cutUs": 3000000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 3000000, "ids": [] }
+          ],
+          "deliveryUs": 3000000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "incomplete",
+          "quantityBySku": { "sku-1": 3 },
+          "missingIds": [],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a", "op-b"],
+          "reasons": ["missing-origin-certificate:ap-northeast"]
+        },
+        {
+          "status": "ok",
+          "quantityBySku": { "sku-1": 3 },
+          "missingIds": [],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a", "op-b"],
+          "reasons": []
+        }
+      ],
+      "note": "Three configured origins means three certificates. An idle origin (ap-northeast) still owes a certificate with an empty id list; omitting it is a certificate hole, not a cache miss."
+    },
+    {
+      "id": "duplicate-origin-certificate",
+      "healthy": true,
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 0
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 900000
+        }
+      ],
+      "attempts": [
+        {
+          "coveredIds": ["op-a", "op-b"],
+          "tokenIds": ["op-a"],
+          "certificates": [
+            { "origin": "us-west", "cutUs": 3000000, "ids": ["op-a", "op-b"] },
+            { "origin": "us-west", "cutUs": 3000000, "ids": ["op-a", "op-b"] },
+            { "origin": "eu-central", "cutUs": 3000000, "ids": [] },
+            { "origin": "ap-northeast", "cutUs": 3000000, "ids": [] }
+          ],
+          "deliveryUs": 3000000,
+          "servedFromCache": false
+        }
+      ],
+      "expectations": [
+        {
+          "status": "incomplete",
+          "quantityBySku": { "sku-1": 3 },
+          "missingIds": [],
+          "expiredOrigins": [],
+          "outgoingTokenIds": ["op-a", "op-b"],
+          "reasons": ["duplicate-origin-certificate:us-west"]
+        }
+      ],
+      "note": "Exactly one certificate per origin: two certificates from the same authority are a malformed view, not extra coverage."
+    }
+  ]
+}

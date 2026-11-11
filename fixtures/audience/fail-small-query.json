@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "levelId": "live-audience",
+  "nodes": [
+    {
+      "id": "users",
+      "kind": "users",
+      "label": "Users",
+      "position": {
+        "x": 80,
+        "y": 180
+      },
+      "config": {}
+    },
+    {
+      "id": "lb",
+      "kind": "lb",
+      "label": "Managed Load Balancer",
+      "position": {
+        "x": 460,
+        "y": 180
+      },
+      "config": {}
+    },
+    {
+      "id": "app",
+      "kind": "app",
+      "label": "Application",
+      "position": {
+        "x": 840,
+        "y": 180
+      },
+      "config": {
+        "instances": 2
+      }
+    },
+    {
+      "id": "sql",
+      "kind": "sql",
+      "label": "SQL Database",
+      "position": {
+        "x": 1220,
+        "y": 180
+      },
+      "config": {
+        "size": "small",
+        "readPlan": "query"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-users-lb",
+      "from": "users",
+      "to": "lb"
+    },
+    {
+      "id": "e-lb-app",
+      "from": "lb",
+      "to": "app"
+    },
+    {
+      "id": "e-app-sql",
+      "from": "app",
+      "to": "sql"
+    }
+  ]
+}

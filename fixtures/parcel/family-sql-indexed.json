@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "levelId": "parcel-pulse",
+  "name": "Family: indexed SQL report scan",
+  "nodes": [
+    {
+      "id": "client-1",
+      "kind": "client",
+      "label": "Client",
+      "position": {
+        "x": 0,
+        "y": 160
+      },
+      "config": {
+        "size": "small"
+      }
+    },
+    {
+      "id": "app-1",
+      "kind": "app",
+      "label": "Application",
+      "position": {
+        "x": 420,
+        "y": 160
+      },
+      "config": {
+        "size": "medium"
+      }
+    },
+    {
+      "id": "sql-1",
+      "kind": "sql",
+      "label": "SQL primary",
+      "position": {
+        "x": 920,
+        "y": 160
+      },
+      "config": {
+        "size": "large",
+        "storageTb": 24,
+        "index": "parcel-warehouse",
+        "partition": "month",
+        "latestStatus": true,
+        "rollups": false,
+        "retentionYears": 5,
+        "compression": "zstd"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-traffic",
+      "source": "client-1",
+      "target": "app-1",
+      "operation": "traffic"
+    },
+    {
+      "id": "edge-ingest",
+      "source": "app-1",
+      "target": "sql-1",
+      "operation": "ingest"
+    },
+    {
+      "id": "edge-status",
+      "source": "app-1",
+      "target": "sql-1",
+      "operation": "status"
+    },
+    {
+      "id": "edge-history",
+      "source": "app-1",
+      "target": "sql-1",
+      "operation": "history"
+    },
+    {
+      "id": "edge-report",
+      "source": "app-1",
+      "target": "sql-1",
+      "operation": "report"
+    }
+  ]
+}

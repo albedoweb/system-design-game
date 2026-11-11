@@ -1,0 +1,26 @@
+{
+  "name": "system-design-game-backend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24.15.0 <25"
+  },
+  "scripts": {
+    "build": "rm -rf dist && esbuild src/main.ts src/engine/worker.ts --bundle --platform=node --format=esm --target=node24 --packages=external --outbase=src --outdir=dist --log-level=warning",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test --test-concurrency=1 tests/*.test.ts",
+    "test:watch": "node --import tsx --test --watch --test-concurrency=1 tests/*.test.ts",
+    "dev": "node --import tsx --watch src/main.ts",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "fastify": "5.12.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "esbuild": "0.28.2",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

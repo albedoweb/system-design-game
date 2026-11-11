@@ -1,0 +1,326 @@
+{
+  "contract": "cart-protocol-v1",
+  "fixtureVersion": 1,
+  "purpose": "Independent strict-Inventory expectation tables. Expected stock, order and ledger outcomes are literals; reference-oracle.ts replays them transactionally and asserts conservation for every scenario.",
+  "conservation": "For every SKU: remainingStock >= 0 and remainingStock + sum(committedSuccessfulOrderQuantities) = initialStock.",
+  "scenarios": [
+    {
+      "id": "race",
+      "kind": "permutations",
+      "note": "Three one-unit orders compete for two units. FIFO order decides winners; the literal outcomes are identical for every permutation.",
+      "initialStock": { "probe/race/20/race/scarce": 2 },
+      "baskets": [
+        {
+          "orderKey": "order-race-us-west",
+          "cartId": "cart-race-us-west",
+          "coveredIds": ["op-race-us-west"],
+          "tokenIds": ["op-race-us-west"],
+          "lines": [{ "sku": "probe/race/20/race/scarce", "quantity": 1 }],
+          "expectedDigest": "02bd5a56e91aa56fd2524bf299bd882176cb019c20bb9de109a1de482ba1355d"
+        },
+        {
+          "orderKey": "order-race-eu-central",
+          "cartId": "cart-race-eu-central",
+          "coveredIds": ["op-race-eu-central"],
+          "tokenIds": ["op-race-eu-central"],
+          "lines": [{ "sku": "probe/race/20/race/scarce", "quantity": 1 }]
+        },
+        {
+          "orderKey": "order-race-ap-northeast",
+          "cartId": "cart-race-ap-northeast",
+          "coveredIds": ["op-race-ap-northeast"],
+          "tokenIds": ["op-race-ap-northeast"],
+          "lines": [{ "sku": "probe/race/20/race/scarce", "quantity": 1 }]
+        }
+      ],
+      "permutations": [
+        { "order": [0, 1, 2], "outcomes": ["committed", "committed", "out-of-stock"], "finalStock": { "probe/race/20/race/scarce": 0 }, "orderCount": 2 },
+        { "order": [0, 2, 1], "outcomes": ["committed", "committed", "out-of-stock"], "finalStock": { "probe/race/20/race/scarce": 0 }, "orderCount": 2 },
+        { "order": [1, 0, 2], "outcomes": ["committed", "committed", "out-of-stock"], "finalStock": { "probe/race/20/race/scarce": 0 }, "orderCount": 2 },
+        { "order": [1, 2, 0], "outcomes": ["committed", "committed", "out-of-stock"], "finalStock": { "probe/race/20/race/scarce": 0 }, "orderCount": 2 },
+        { "order": [2, 0, 1], "outcomes": ["committed", "committed", "out-of-stock"], "finalStock": { "probe/race/20/race/scarce": 0 }, "orderCount": 2 },
+        { "order": [2, 1, 0], "outcomes": ["committed", "committed", "out-of-stock"], "finalStock": { "probe/race/20/race/scarce": 0 }, "orderCount": 2 }
+      ]
+    },
+    {
+      "id": "atomic",
+      "kind": "permutations",
+      "note": "Two multi-SKU baskets compete for one scarce unit and an abundant SKU. The loser must decrement neither line.",
+      "initialStock": {
+        "probe/atomic/20/atomic/scarce": 1,
+        "probe/atomic/20/atomic/abundant": 10
+      },
+      "baskets": [
+        {
+          "orderKey": "order-atomic-us-west",
+          "cartId": "cart-atomic-us-west",
+          "coveredIds": ["op-atomic-us-west"],
+          "tokenIds": ["op-atomic-us-west"],
+          "lines": [
+            { "sku": "probe/atomic/20/atomic/abundant", "quantity": 2 },
+            { "sku": "probe/atomic/20/atomic/scarce", "quantity": 1 }
+          ]
+        },
+        {
+          "orderKey": "order-atomic-eu-central",
+          "cartId": "cart-atomic-eu-central",
+          "coveredIds": ["op-atomic-eu-central"],
+          "tokenIds": ["op-atomic-eu-central"],
+          "lines": [
+            { "sku": "probe/atomic/20/atomic/abundant", "quantity": 3 },
+            { "sku": "probe/atomic/20/atomic/scarce", "quantity": 1 }
+          ]
+        }
+      ],
+      "permutations": [
+        {
+          "order": [0, 1],
+          "outcomes": ["committed", "out-of-stock"],
+          "finalStock": { "probe/atomic/20/atomic/scarce": 0, "probe/atomic/20/atomic/abundant": 8 },
+          "orderCount": 1
+        },
+        {
+          "order": [1, 0],
+          "outcomes": ["committed", "out-of-stock"],
+          "finalStock": { "probe/atomic/20/atomic/scarce": 0, "probe/atomic/20/atomic/abundant": 7 },
+          "orderCount": 1
+        }
+      ]
+    },
+    {
+      "id": "known-stock",
+      "kind": "single",
+      "note": "A design that rejects every purchase cannot pass; this probe requires a real success.",
+      "initialStock": { "probe/known/20/known-stock/sku": 10 },
+      "request": {
+        "orderKey": "order-known-20",
+        "cartId": "cart-known-20",
+        "coveredIds": ["op-known-base"],
+        "tokenIds": ["op-known-base"],
+        "lines": [{ "sku": "probe/known/20/known-stock/sku", "quantity": 1 }],
+        "expectedDigest": "19ad48feecd7f3c63885f8c153be43a61c2201738fae80fb15037e95399e7d3f"
+      },
+      "evidenceMode": "self",
+      "ledgerReachable": true,
+      "expectedOutcome": "committed",
+      "expectedFinalStock": { "probe/known/20/known-stock/sku": 9 },
+      "expectedOrderCount": 1,
+      "expectedLedgerRows": 1
+    },
+    {
+      "id": "lost-reply-edit-replay",
+      "kind": "sequence",
+      "note": "Commit succeeds and the reply is discarded; then the cart changes; the explicit replay of the original key/basket must recover the recorded outcome with no new stock decrement and no cart read.",
+      "initialStock": { "probe/replay/20/lost-reply-edit-replay/sku": 10 },
+      "steps": [
+        {
+          "label": "purchase-commit-reply-lost",
+          "request": {
+            "orderKey": "order-replay-20",
+            "cartId": "cart-replay-20",
+            "coveredIds": ["op-replay-base"],
+            "tokenIds": ["op-replay-base"],
+            "lines": [{ "sku": "probe/replay/20/lost-reply-edit-replay/sku", "quantity": 1 }],
+            "expectedDigest": "9b2181f733881e9f4909c5ac677a6e1eb76df3d7df0807f10d1433636bceb83d"
+          },
+          "evidenceMode": "self",
+          "ledgerReachable": true,
+          "replyDiscardedAfterCommit": true,
+          "expectedOutcome": "committed",
+          "expectedDuplicate": false,
+          "expectedStockAfter": { "probe/replay/20/lost-reply-edit-replay/sku": 9 }
+        },
+        {
+          "label": "cart-edit-after-loss",
+          "noRequest": true,
+          "note": "Ordinary charged Add(1): cart quantity becomes 2. Inventory state must not change.",
+          "expectedCartQuantity": 2,
+          "expectedStockAfter": { "probe/replay/20/lost-reply-edit-replay/sku": 9 }
+        },
+        {
+          "label": "original-basket-replay",
+          "request": {
+            "orderKey": "order-replay-20",
+            "cartId": "cart-replay-20",
+            "coveredIds": ["op-replay-base"],
+            "tokenIds": ["op-replay-base"],
+            "lines": [{ "sku": "probe/replay/20/lost-reply-edit-replay/sku", "quantity": 1 }]
+          },
+          "evidenceMode": "absent",
+          "ledgerReachable": true,
+          "cartReadPathAvailable": false,
+          "expectedOutcome": "committed",
+          "expectedDuplicate": true,
+          "expectedStockAfter": { "probe/replay/20/lost-reply-edit-replay/sku": 9 }
+        }
+      ],
+      "expectedFinal": {
+        "stock": { "probe/replay/20/lost-reply-edit-replay/sku": 9 },
+        "orders": 1,
+        "ledgerRows": 1,
+        "cartQuantity": 2
+      }
+    },
+    {
+      "id": "cart-path-unavailable-replay",
+      "kind": "sequence",
+      "note": "Same replay guarantee when every cart-read RPC for that attempt is denied: the ledger answer must not require a fresh cart read.",
+      "initialStock": { "probe/replay/20/cart-path-unavailable-replay/sku": 10 },
+      "steps": [
+        {
+          "label": "initial-purchase",
+          "request": {
+            "orderKey": "order-cart-path-20",
+            "cartId": "cart-cart-path-20",
+            "coveredIds": ["op-cart-path-base"],
+            "tokenIds": ["op-cart-path-base"],
+            "lines": [{ "sku": "probe/replay/20/cart-path-unavailable-replay/sku", "quantity": 1 }]
+          },
+          "evidenceMode": "self",
+          "ledgerReachable": true,
+          "expectedOutcome": "committed",
+          "expectedDuplicate": false,
+          "expectedStockAfter": { "probe/replay/20/cart-path-unavailable-replay/sku": 9 }
+        },
+        {
+          "label": "replay-with-cart-read-denied",
+          "request": {
+            "orderKey": "order-cart-path-20",
+            "cartId": "cart-cart-path-20",
+            "coveredIds": ["op-cart-path-base"],
+            "tokenIds": [],
+            "lines": [{ "sku": "probe/replay/20/cart-path-unavailable-replay/sku", "quantity": 1 }]
+          },
+          "evidenceMode": "absent",
+          "ledgerReachable": true,
+          "cartReadPathAvailable": false,
+          "expectedOutcome": "committed",
+          "expectedDuplicate": true,
+          "expectedStockAfter": { "probe/replay/20/cart-path-unavailable-replay/sku": 9 }
+        }
+      ],
+      "expectedFinal": {
+        "stock": { "probe/replay/20/cart-path-unavailable-replay/sku": 9 },
+        "orders": 1,
+        "ledgerRows": 1
+      }
+    },
+    {
+      "id": "ledger-unavailable",
+      "kind": "single",
+      "note": "Unreachable order record is unknown, never OutOfStock and never success; no stock mutation.",
+      "initialStock": { "probe/ledger/20/ledger-unavailable/sku": 10 },
+      "request": {
+        "orderKey": "order-ledger-20",
+        "cartId": "cart-ledger-20",
+        "coveredIds": ["op-ledger-base"],
+        "tokenIds": ["op-ledger-base"],
+        "lines": [{ "sku": "probe/ledger/20/ledger-unavailable/sku", "quantity": 1 }]
+      },
+      "evidenceMode": "absent",
+      "ledgerReachable": false,
+      "expectedOutcome": "unavailable",
+      "expectedFinalStock": { "probe/ledger/20/ledger-unavailable/sku": 10 },
+      "expectedOrderCount": 0,
+      "expectedLedgerRows": 0
+    },
+    {
+      "id": "conflict",
+      "kind": "sequence",
+      "note": "Same key with different lines/digest is an idempotency conflict with zero extra effect.",
+      "initialStock": { "probe/conflict/20/conflict/sku": 10 },
+      "steps": [
+        {
+          "label": "initial-commit",
+          "request": {
+            "orderKey": "order-conflict-20",
+            "cartId": "cart-conflict-20",
+            "coveredIds": ["op-conflict-base"],
+            "tokenIds": ["op-conflict-base"],
+            "lines": [{ "sku": "probe/conflict/20/conflict/sku", "quantity": 1 }]
+          },
+          "evidenceMode": "self",
+          "ledgerReachable": true,
+          "expectedOutcome": "committed",
+          "expectedDuplicate": false,
+          "expectedStockAfter": { "probe/conflict/20/conflict/sku": 9 }
+        },
+        {
+          "label": "same-key-different-lines",
+          "request": {
+            "orderKey": "order-conflict-20",
+            "cartId": "cart-conflict-20",
+            "coveredIds": ["op-conflict-base"],
+            "tokenIds": ["op-conflict-base"],
+            "lines": [{ "sku": "probe/conflict/20/conflict/sku", "quantity": 2 }]
+          },
+          "evidenceMode": "self",
+          "ledgerReachable": true,
+          "expectedOutcome": "idempotency-conflict",
+          "expectedDuplicate": false,
+          "expectedStockAfter": { "probe/conflict/20/conflict/sku": 9 }
+        }
+      ],
+      "expectedFinal": {
+        "stock": { "probe/conflict/20/conflict/sku": 9 },
+        "orders": 1,
+        "ledgerRows": 1
+      }
+    },
+    {
+      "id": "unknown-key-no-evidence",
+      "kind": "single",
+      "note": "A lookup miss on an unknown key with no valid complete-view evidence must not authorize a purchase; contract permits unavailable or ValidationFailed, never a business success.",
+      "initialStock": { "probe/unknown/20/unknown-key-no-evidence/sku": 10 },
+      "request": {
+        "orderKey": "order-unknown-20",
+        "cartId": "cart-unknown-20",
+        "coveredIds": [],
+        "tokenIds": [],
+        "lines": [{ "sku": "probe/unknown/20/unknown-key-no-evidence/sku", "quantity": 1 }]
+      },
+      "evidenceMode": "absent",
+      "ledgerReachable": true,
+      "expectedOutcomes": ["validation-failed", "unavailable"],
+      "forbiddenOutcomes": ["committed", "out-of-stock"],
+      "expectedFinalStock": { "probe/unknown/20/unknown-key-no-evidence/sku": 10 },
+      "expectedOrderCount": 0,
+      "expectedLedgerRows": 0
+    },
+    {
+      "id": "malformed-validation",
+      "kind": "validation",
+      "note": "Zero/negative quantities, duplicate SKUs and empty baskets are pre-mutation validation failures.",
+      "initialStock": { "probe/malformed/20/validation/sku": 10 },
+      "cases": [
+        {
+          "label": "empty-basket",
+          "lines": [],
+          "coveredIds": ["op-malformed-base"],
+          "tokenIds": ["op-malformed-base"],
+          "expectedOutcome": "validation-failed"
+        },
+        {
+          "label": "duplicate-sku",
+          "lines": [
+            { "sku": "probe/malformed/20/validation/sku", "quantity": 1 },
+            { "sku": "probe/malformed/20/validation/sku", "quantity": 2 }
+          ],
+          "coveredIds": ["op-malformed-base"],
+          "tokenIds": ["op-malformed-base"],
+          "expectedOutcome": "validation-failed"
+        },
+        {
+          "label": "zero-quantity",
+          "lines": [{ "sku": "probe/malformed/20/validation/sku", "quantity": 0 }],
+          "coveredIds": ["op-malformed-base"],
+          "tokenIds": ["op-malformed-base"],
+          "expectedOutcome": "validation-failed"
+        }
+      ],
+      "expectedFinalStock": { "probe/malformed/20/validation/sku": 10 },
+      "expectedOrderCount": 0,
+      "expectedLedgerRows": 0
+    }
+  ]
+}

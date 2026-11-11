@@ -1,0 +1,190 @@
+{
+  "id": "control-central-synchronous",
+  "kind": "negative-control",
+  "control": "central-synchronous",
+  "title": "Central synchronous writes",
+  "expectation": "Every region writes synchronously to one central journal, so the design must not qualify: cross-region write latency and shared serial durability show up in the gates.",
+  "preliminaryVerdict": null,
+  "graph": {
+    "levelId": "global-cart",
+    "graphVersion": "cart-graph-v1",
+    "contentVersion": "cart-content-v1",
+    "seed": 1729,
+    "nodes": [
+      {
+        "id": "customers-us-west",
+        "kind": "customers",
+        "region": "us-west",
+        "position": {
+          "x": 120,
+          "y": 40
+        }
+      },
+      {
+        "id": "customers-eu-central",
+        "kind": "customers",
+        "region": "eu-central",
+        "position": {
+          "x": 520,
+          "y": 40
+        }
+      },
+      {
+        "id": "customers-ap-northeast",
+        "kind": "customers",
+        "region": "ap-northeast",
+        "position": {
+          "x": 920,
+          "y": 40
+        }
+      },
+      {
+        "id": "inventory",
+        "kind": "inventory",
+        "region": "us-west",
+        "position": {
+          "x": 240,
+          "y": 440
+        },
+        "size": "M"
+      },
+      {
+        "id": "app-us-west",
+        "kind": "application",
+        "region": "us-west",
+        "position": {
+          "x": 160,
+          "y": 200
+        },
+        "size": "M",
+        "instances": 1,
+        "writeTarget": "journal-central",
+        "readPolicy": "local-repair",
+        "readTargets": [
+          "journal-central"
+        ]
+      },
+      {
+        "id": "app-eu-central",
+        "kind": "application",
+        "region": "eu-central",
+        "position": {
+          "x": 560,
+          "y": 200
+        },
+        "size": "M",
+        "instances": 1,
+        "writeTarget": "journal-central",
+        "readPolicy": "local-repair",
+        "readTargets": [
+          "journal-central"
+        ]
+      },
+      {
+        "id": "app-ap-northeast",
+        "kind": "application",
+        "region": "ap-northeast",
+        "position": {
+          "x": 960,
+          "y": 200
+        },
+        "size": "M",
+        "instances": 1,
+        "writeTarget": "journal-central",
+        "readPolicy": "local-repair",
+        "readTargets": [
+          "journal-central"
+        ]
+      },
+      {
+        "id": "journal-central",
+        "kind": "journal",
+        "region": "us-west",
+        "position": {
+          "x": 200,
+          "y": 320
+        },
+        "size": "M"
+      }
+    ],
+    "edges": [
+      {
+        "id": "src-us-west",
+        "from": "customers-us-west",
+        "to": "app-us-west",
+        "kind": "request"
+      },
+      {
+        "id": "src-eu-central",
+        "from": "customers-eu-central",
+        "to": "app-eu-central",
+        "kind": "request"
+      },
+      {
+        "id": "src-ap-northeast",
+        "from": "customers-ap-northeast",
+        "to": "app-ap-northeast",
+        "kind": "request"
+      },
+      {
+        "id": "central-write-us-west",
+        "from": "app-us-west",
+        "to": "journal-central",
+        "kind": "request"
+      },
+      {
+        "id": "central-write-eu-central",
+        "from": "app-eu-central",
+        "to": "journal-central",
+        "kind": "request"
+      },
+      {
+        "id": "central-write-ap-northeast",
+        "from": "app-ap-northeast",
+        "to": "journal-central",
+        "kind": "request"
+      },
+      {
+        "id": "inventory-us-west",
+        "from": "app-us-west",
+        "to": "inventory",
+        "kind": "request"
+      },
+      {
+        "id": "inventory-eu-central",
+        "from": "app-eu-central",
+        "to": "inventory",
+        "kind": "request"
+      },
+      {
+        "id": "inventory-ap-northeast",
+        "from": "app-ap-northeast",
+        "to": "inventory",
+        "kind": "request"
+      }
+    ],
+    "circuits": [
+      {
+        "regions": [
+          "us-west",
+          "eu-central"
+        ],
+        "mbps": 8
+      },
+      {
+        "regions": [
+          "us-west",
+          "ap-northeast"
+        ],
+        "mbps": 8
+      },
+      {
+        "regions": [
+          "eu-central",
+          "ap-northeast"
+        ],
+        "mbps": 8
+      }
+    ]
+  }
+}

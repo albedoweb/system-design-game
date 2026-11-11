@@ -1,0 +1,142 @@
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.results__banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.results__banner svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.results__banner.is-pass {
+  border-color: #b9ddd5;
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.results__banner.is-fail {
+  border-color: #efc4bf;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.results__eyebrow {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.results__banner h2 {
+  margin-top: 1px;
+  color: currentcolor;
+  font-size: 1.05rem;
+}
+
+.results__banner p {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.results__stale {
+  padding: 7px 9px;
+  border: 1px solid #eed5a2;
+  border-radius: 7px;
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 0.73rem;
+  line-height: 1.4;
+}
+
+.results h3 {
+  margin-bottom: 7px;
+  font-size: 0.82rem;
+}
+
+.results__note {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.results__warning {
+  margin-top: 6px;
+  color: var(--danger);
+  font-size: 0.7rem;
+}
+
+.diagnostics {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.diagnostic {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.diagnostic__icon {
+  flex: none;
+  margin-top: 1px;
+}
+
+.diagnostic--error {
+  border-color: #efc4bf;
+  background: #fff8f7;
+  color: var(--danger);
+}
+
+.diagnostic--warning {
+  border-color: #eed5a2;
+  background: #fffbf1;
+  color: var(--warning);
+}
+
+.diagnostic--info {
+  color: var(--muted);
+}
+
+.diagnostic button {
+  margin-top: 3px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-size: 0.7rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.results__best {
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+}
+
+.results__best > p {
+  font-size: 0.74rem;
+}

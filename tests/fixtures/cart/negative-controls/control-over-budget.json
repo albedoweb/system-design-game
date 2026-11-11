@@ -1,0 +1,291 @@
+{
+  "id": "control-over-budget",
+  "kind": "negative-control",
+  "control": "over-budget",
+  "title": "Over-budget density",
+  "expectation": "The densest legal topology at the 32 Mbit tier must measure a peak cost above the 6 credit/hour budget.",
+  "preliminaryVerdict": null,
+  "graph": {
+    "levelId": "global-cart",
+    "graphVersion": "cart-graph-v1",
+    "contentVersion": "cart-content-v1",
+    "seed": 1729,
+    "nodes": [
+      {
+        "id": "customers-us-west",
+        "kind": "customers",
+        "region": "us-west",
+        "position": {
+          "x": 120,
+          "y": 40
+        }
+      },
+      {
+        "id": "customers-eu-central",
+        "kind": "customers",
+        "region": "eu-central",
+        "position": {
+          "x": 520,
+          "y": 40
+        }
+      },
+      {
+        "id": "customers-ap-northeast",
+        "kind": "customers",
+        "region": "ap-northeast",
+        "position": {
+          "x": 920,
+          "y": 40
+        }
+      },
+      {
+        "id": "inventory",
+        "kind": "inventory",
+        "region": "us-west",
+        "position": {
+          "x": 240,
+          "y": 440
+        },
+        "size": "M"
+      },
+      {
+        "id": "app-us-west",
+        "kind": "application",
+        "region": "us-west",
+        "position": {
+          "x": 160,
+          "y": 200
+        },
+        "size": "M",
+        "instances": 2,
+        "writeTarget": "store-us-west",
+        "readPolicy": "parallel",
+        "readTargets": [
+          "store-us-west",
+          "journal-us-west"
+        ]
+      },
+      {
+        "id": "app-eu-central",
+        "kind": "application",
+        "region": "eu-central",
+        "position": {
+          "x": 560,
+          "y": 200
+        },
+        "size": "M",
+        "instances": 2,
+        "writeTarget": "store-eu-central",
+        "readPolicy": "parallel",
+        "readTargets": [
+          "store-eu-central",
+          "journal-eu-central"
+        ]
+      },
+      {
+        "id": "app-ap-northeast",
+        "kind": "application",
+        "region": "ap-northeast",
+        "position": {
+          "x": 960,
+          "y": 200
+        },
+        "size": "M",
+        "instances": 2,
+        "writeTarget": "store-ap-northeast",
+        "readPolicy": "parallel",
+        "readTargets": [
+          "store-ap-northeast",
+          "journal-ap-northeast"
+        ]
+      },
+      {
+        "id": "store-us-west",
+        "kind": "store",
+        "region": "us-west",
+        "position": {
+          "x": 200,
+          "y": 320
+        },
+        "size": "M"
+      },
+      {
+        "id": "store-eu-central",
+        "kind": "store",
+        "region": "eu-central",
+        "position": {
+          "x": 600,
+          "y": 320
+        },
+        "size": "M"
+      },
+      {
+        "id": "store-ap-northeast",
+        "kind": "store",
+        "region": "ap-northeast",
+        "position": {
+          "x": 1000,
+          "y": 320
+        },
+        "size": "M"
+      },
+      {
+        "id": "journal-us-west",
+        "kind": "journal",
+        "region": "us-west",
+        "position": {
+          "x": 240,
+          "y": 440
+        },
+        "size": "M"
+      },
+      {
+        "id": "journal-eu-central",
+        "kind": "journal",
+        "region": "eu-central",
+        "position": {
+          "x": 640,
+          "y": 440
+        },
+        "size": "M"
+      },
+      {
+        "id": "journal-ap-northeast",
+        "kind": "journal",
+        "region": "ap-northeast",
+        "position": {
+          "x": 1040,
+          "y": 440
+        },
+        "size": "M"
+      },
+      {
+        "id": "cache-us-west",
+        "kind": "cache",
+        "region": "us-west",
+        "position": {
+          "x": 280,
+          "y": 560
+        },
+        "size": "M"
+      },
+      {
+        "id": "cache-eu-central",
+        "kind": "cache",
+        "region": "eu-central",
+        "position": {
+          "x": 680,
+          "y": 560
+        },
+        "size": "M"
+      },
+      {
+        "id": "cache-ap-northeast",
+        "kind": "cache",
+        "region": "ap-northeast",
+        "position": {
+          "x": 1080,
+          "y": 560
+        },
+        "size": "M"
+      }
+    ],
+    "edges": [
+      {
+        "id": "src-us-west",
+        "from": "customers-us-west",
+        "to": "app-us-west",
+        "kind": "request"
+      },
+      {
+        "id": "src-eu-central",
+        "from": "customers-eu-central",
+        "to": "app-eu-central",
+        "kind": "request"
+      },
+      {
+        "id": "src-ap-northeast",
+        "from": "customers-ap-northeast",
+        "to": "app-ap-northeast",
+        "kind": "request"
+      },
+      {
+        "id": "ack-us-west",
+        "from": "app-us-west",
+        "to": "store-us-west",
+        "kind": "request"
+      },
+      {
+        "id": "ack-eu-central",
+        "from": "app-eu-central",
+        "to": "store-eu-central",
+        "kind": "request"
+      },
+      {
+        "id": "ack-ap-northeast",
+        "from": "app-ap-northeast",
+        "to": "store-ap-northeast",
+        "kind": "request"
+      },
+      {
+        "id": "read-us-west",
+        "from": "app-us-west",
+        "to": "journal-us-west",
+        "kind": "request"
+      },
+      {
+        "id": "read-eu-central",
+        "from": "app-eu-central",
+        "to": "journal-eu-central",
+        "kind": "request"
+      },
+      {
+        "id": "read-ap-northeast",
+        "from": "app-ap-northeast",
+        "to": "journal-ap-northeast",
+        "kind": "request"
+      },
+      {
+        "id": "inventory-us-west",
+        "from": "app-us-west",
+        "to": "inventory",
+        "kind": "request"
+      },
+      {
+        "id": "inventory-eu-central",
+        "from": "app-eu-central",
+        "to": "inventory",
+        "kind": "request"
+      },
+      {
+        "id": "inventory-ap-northeast",
+        "from": "app-ap-northeast",
+        "to": "inventory",
+        "kind": "request"
+      }
+    ],
+    "circuits": [
+      {
+        "regions": [
+          "us-west",
+          "eu-central"
+        ],
+        "mbps": 32
+      },
+      {
+        "regions": [
+          "us-west",
+          "ap-northeast"
+        ],
+        "mbps": 32
+      },
+      {
+        "regions": [
+          "eu-central",
+          "ap-northeast"
+        ],
+        "mbps": 32
+      }
+    ]
+  }
+}

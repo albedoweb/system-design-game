@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "levelId": "live-scoreboard",
+  "nodes": [
+    {
+      "id": "users",
+      "kind": "users",
+      "label": "Users",
+      "position": {
+        "x": 80,
+        "y": 180
+      },
+      "config": {}
+    },
+    {
+      "id": "app",
+      "kind": "app",
+      "label": "Application",
+      "position": {
+        "x": 480,
+        "y": 180
+      },
+      "config": {
+        "instances": 1
+      }
+    },
+    {
+      "id": "sql",
+      "kind": "sql",
+      "label": "SQL Database",
+      "position": {
+        "x": 880,
+        "y": 180
+      },
+      "config": {
+        "size": "small",
+        "readPlan": "scan"
+      }
+    },
+    {
+      "id": "cache",
+      "kind": "cache",
+      "label": "Cache",
+      "position": {
+        "x": 680,
+        "y": 530
+      },
+      "config": {
+        "ttlSeconds": 2
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-users-app",
+      "from": "users",
+      "to": "app"
+    },
+    {
+      "id": "e-app-sql",
+      "from": "app",
+      "to": "sql"
+    },
+    {
+      "id": "e-app-cache",
+      "from": "app",
+      "to": "cache"
+    },
+    {
+      "id": "e-cache-sql",
+      "from": "cache",
+      "to": "sql"
+    }
+  ]
+}

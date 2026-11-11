@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "levelId": "live-audience",
+  "nodes": [
+    {
+      "id": "users",
+      "kind": "users",
+      "label": "Users",
+      "position": {
+        "x": 80,
+        "y": 180
+      },
+      "config": {}
+    },
+    {
+      "id": "app-a",
+      "kind": "app",
+      "label": "Application A",
+      "position": {
+        "x": 840,
+        "y": 180
+      },
+      "config": {
+        "instances": 2
+      }
+    },
+    {
+      "id": "app-b",
+      "kind": "app",
+      "label": "Application B",
+      "position": {
+        "x": 840,
+        "y": 420
+      },
+      "config": {
+        "instances": 2
+      }
+    },
+    {
+      "id": "sql",
+      "kind": "sql",
+      "label": "SQL Database",
+      "position": {
+        "x": 1220,
+        "y": 180
+      },
+      "config": {
+        "size": "large",
+        "readPlan": "query"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-users-app-a",
+      "from": "users",
+      "to": "app-a"
+    },
+    {
+      "id": "e-users-app-b",
+      "from": "users",
+      "to": "app-b"
+    },
+    {
+      "id": "e-app-a-sql",
+      "from": "app-a",
+      "to": "sql"
+    },
+    {
+      "id": "e-app-b-sql",
+      "from": "app-b",
+      "to": "sql"
+    }
+  ]
+}

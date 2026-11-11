@@ -1,0 +1,59 @@
+.error-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: var(--bg, #f5f8fc);
+  color: var(--ink, #162033);
+}
+
+.error-card {
+  width: min(520px, 100%);
+  padding: 36px;
+  border: 1px solid var(--line, #dde5f0);
+  border-radius: 22px;
+  background: var(--surface, #ffffff);
+  box-shadow: 0 24px 60px -44px rgb(22 32 51 / 38%);
+}
+
+.error-eyebrow {
+  margin-bottom: 12px;
+  color: #b42318;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.error-card h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.error-card p:not(.error-eyebrow) {
+  margin: 14px 0 24px;
+  color: var(--muted, #5a6880);
+  line-height: 1.6;
+}
+
+.error-card button {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent, #2458c5);
+  color: #ffffff;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.error-card button:hover {
+  background: var(--accent-strong, #173f96);
+}
+
+.error-card button:focus-visible {
+  outline: 3px solid #9db8f0;
+  outline-offset: 3px;
+}

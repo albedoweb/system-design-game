@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Image Atlas — Player guide</title>
+    <meta
+      name="description"
+      content="A practical guide to Image Atlas: request paths, metadata indexes, caches, capacity, results, and diagnosis."
+    />
+    <link rel="stylesheet" href="./image-atlas.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the guide</a>
+
+    <div class="page">
+      <header class="masthead" aria-labelledby="page-title">
+        <p class="eyebrow">Image Atlas · Player guide</p>
+        <h1 id="page-title">Make one change, then read what the model did</h1>
+        <p class="lede">
+          Image Atlas is a teaching simulation about serving photos from three regions.
+          This guide explains the choices the game actually models, how to read a run,
+          and what to try when a number looks wrong. It is not a walkthrough and it does
+          not promise that any particular graph will pass.
+        </p>
+
+        <ul class="badges" aria-label="At a glance">
+          <li>3 regions</li>
+          <li>Upload · Search · Detail</li>
+          <li>7 qualification cases</li>
+          <li>No automatic saving</li>
+        </ul>
+
+        <div class="notice notice--quiet" role="note">
+          <p>
+            <strong>This guide is in a separate tab.</strong> Your diagram and run stay
+            in the game tab. Switch back to the existing game tab to continue; this page
+            does not reload or reset it.
+          </p>
+        </div>
+      </header>
+
+      <div class="layout">
+        <nav class="toc" aria-labelledby="toc-title">
+          <h2 id="toc-title">On this page</h2>
+          <ol>
+            <li><a href="#quick-start">Quick start</a></li>
+            <li><a href="#two-problems">Two common confusions</a></li>
+            <li><a href="#request-paths">How the three requests travel</a></li>
+            <li><a href="#fixed-and-editable">Fixed pieces and your pieces</a></li>
+            <li><a href="#choices">Choices and trade-offs</a></li>
+            <li><a href="#metadata-and-search">Metadata, indexes and search</a></li>
+            <li><a href="#capacity-and-cost">Capacity, cost and measured data</a></li>
+            <li><a href="#read-results">How to read the results</a></li>
+            <li><a href="#diagnose">Diagnose by symptom</a></li>
+            <li><a href="#experiments">Experiments and saved state</a></li>
+            <li><a href="#limits">What the counters cannot tell you</a></li>
+            <li><a href="#technical">Optional model details</a></li>
+            <li><a href="#return">Returning to the game</a></li>
+          </ol>
+        </nav>
+
+        <main id="main" class="content" tabindex="-1">
+          <section id="quick-start" aria-labelledby="quick-start-title">
+            <h2 id="quick-start-title">Quick start</h2>
+            <p class="section-lede">
+              A useful loop is short: read the task, clear validation, run once, then
+              compare one deliberate change.
+            </p>
+
+            <ol class="steps">
+              <li>
+                <strong>Read the Task brief once.</strong> It states the workload, the
+                latency and availability targets, the budget, and the seven required
+                cases.
+              </li>
+              <li>
+                <strong>Clear blockers before running.</strong> Open
+                <span class="ui">Issues</span> in the inspector and fix errors first.
+                Warnings explain pressure; they do not always block a run.
+              </li>
+              <li>
+                <strong>Keep the Seed fixed for comparisons.</strong> The same seed and
+                the same model reproduce the same demand and fault trace. Change one
+                graph setting at a time.
+              </li>
+              <li>
+                <strong>Run the evaluation.</strong> A full qualification run evaluates
+                all seven cases. A scenario subset is exploratory and cannot qualify.
+              </li>
+              <li>
+                <strong>Open <span class="ui">Results &amp; telemetry</span>.</strong>
+                Choose a case tab, read <span class="ui">Gates</span>, then
+                <span class="ui">Operations</span>.
+              </li>
+              <li>
+                <strong>Compare the same case after the change.</strong> If the change
+                helped one metric but hurt another, you have found the trade-off — not
+                yet a fix.
+              </li>
+            </ol>
+
+            <div class="callout callout--tip">
+              <h3>Before a big experiment, Export</h3>
+              <p>
+                Nothing is saved automatically. <span class="ui">Export</span> writes the
+                graph, node settings, positions and seed to a file.
+                <span class="ui">Import</span> opens such a file later.
+                <span class="ui">Reset</span> or a page reload starts again from the
+                starter graph with the default seed and no previous result. A saved file
+                is never deleted by Reset.
+              </p>
+            </div>
+          </section>
+
+          <section id="two-problems" aria-labelledby="two-problems-title">
+            <h2 id="two-problems-title">Two common confusions</h2>
+
+            <article class="problem" aria-labelledby="search-problem-title">
+              <h3 id="search-problem-title">
+                “I store metadata, but search still fails.”
+              </h3>
+              <p>
+                Storing a metadata record and being able to search it are different
+                things. The record can be durable while the store still has no index
+                that can answer the query. In this simulation, search does not silently
+                fall back to a table scan: if the declared index cannot serve the query,
+                the request fails with <code>metadata_index_missing</code>.
+              </p>
+              <ol class="compact-list">
+                <li>Select the metadata store on the canvas.</li>
+                <li>
+                  In the Inspector, find <span class="ui">Index mode</span>.
+                </li>
+                <li>
+                  For both user searches and one-tag searches, choose
+                  <span class="ui">User + tag index (352 B/object)</span>.
+                </li>
+                <li>
+                  If you only need search by user, <span class="ui">User recency index
+                  (64 B/object)</span> is enough.
+                </li>
+                <li>
+                  Then check capacity separately: the index also consumes disk on every
+                  physical copy.
+                </li>
+              </ol>
+              <p class="aside">
+                <strong>Why this is a game rule, not a database claim.</strong> Real SQL
+                databases can scan a table. This model deliberately does not simulate
+                that scan. The index choice is a disclosed teaching rule about the cost
+                of keeping search cheap and predictable.
+              </p>
+            </article>
+
+            <article class="problem" aria-labelledby="upload-problem-title">
+              <h3 id="upload-problem-title">
+                “Upload takes 3.4 s, but the provider endpoints are regional.”
+              </h3>
+              <p class="aside">
+                The 3.4 s in this section is an <strong>illustrative example</strong>,
+                not a diagnosis of your graph or a measured result from your run.
+              </p>
+              <p>
+                A 4 MB original sent over one 1 Gbit/s lane takes about
+                <strong>32 ms</strong> to serialize:
+              </p>
+              <p class="math">4,000,000 bytes × 8 ÷ 1,000,000,000 bit/s = 0.032 s</p>
+              <p>
+                On top of that, the provider charges a write service-start delay of
+                <strong>80, 140 or 200 ms</strong> (plus 4 ms of durable service), then
+                the upload needs its metadata durable commit and the normal network and
+                queueing stages. Best case is roughly <strong>116 ms</strong> before
+                propagation, metadata work and queues — far below 3.4 s.
+              </p>
+              <p>
+                A regional provider endpoint removes the long geographic propagation
+                only when the path stays local. It does <em>not</em> remove provider
+                admission limits, the shared regional link, instance NIC or disk queues,
+                the metadata commit, or the cost of retries. Those are usually where a
+                multi-second tail comes from.
+              </p>
+              <p class="aside">
+                Streaming proxy mode pays one payload serialization across overlapping
+                hops. Buffered mode pays one serialization per hop and keeps the whole
+                payload in memory. Even three buffered hops add only about 96 ms of
+                serialization, so 3.4 s still points at waiting or repeated work, not at
+                the speed of light between regions.
+              </p>
+            </article>
+          </section>
+
+          <section id="request-paths" aria-labelledby="request-paths-title">
+            <h2 id="request-paths-title">How the three requests travel</h2>
+            <p class="section-lede">
+              Every request starts at a fixed regional Client population. Each business
+              request has its own <strong>1 Gbit/s access link</strong>, shared by all of
+              its child transfers. The Client node also has a shared population link of
+              <strong>100 Gbit/s in each direction</strong>. The two limits are separate.
+            </p>
+
+            <div class="path-grid">
+              <article class="path-card">
+                <p class="card-label">Upload</p>
+                <h3>One original, one metadata record</h3>
+                <ol>
+                  <li>The client sends the request to a connected app.</li>
+                  <li>
+                    The app handles control work and binds the upload to one metadata
+                    origin.
+                  </li>
+                  <li>
+                    The 4 MB original goes to a provider endpoint. In direct delivery the
+                    client sends it to the provider; in proxy delivery the app carries the
+                    bytes.
+                  </li>
+                  <li>
+                    After the payload, the provider starts its durable write, then the
+                    metadata store commits the record and the required local copies. The
+                    ACK waits for the object durability and that local metadata quorum.
+                    It does not wait for cross-region replication or global search
+                    publication; those are separate, later events.
+                  </li>
+                  <li>The client receives the acknowledgement.</li>
+                </ol>
+              </article>
+
+              <article class="path-card">
+                <p class="card-label">Search</p>
+                <h3>One index lookup, ten thumbnails</h3>
+                <ol>
+                  <li>The client sends the search to an app.</li>
+                  <li>
+                    The app asks its metadata store for the ten most recent matches. The
+                    declared index must serve that query.
+                  </li>
+                  <li>
+                    The ten 256 KB thumbnails are fetched from the provider, or from one
+                    cache on a hit.
+                  </li>
+                  <li>
+                    The children are fetched concurrently on the server side, but the ten
+                    thumbnails share the request’s 1 Gbit/s client access link, so they
+                    serialize there.
+                  </li>
+                  <li>
+                    Search completes only when the required children complete.
+                  </li>
+                </ol>
+              </article>
+
+              <article class="path-card">
+                <p class="card-label">Detail</p>
+                <h3>Point lookup, then one original</h3>
+                <ol>
+                  <li>The client sends the detail request to an app.</li>
+                  <li>
+                    The app performs a point lookup in its metadata store and returns the
+                    8 KB record.
+                  </li>
+                  <li>
+                    The 4 MB original is fetched from the provider, directly or through
+                    the proxy path, or from a cache on a hit.
+                  </li>
+                  <li>
+                    A cache response still uses the client link. A hit saves provider
+                    retrieval and fill traffic, not the client transfer.
+                  </li>
+                </ol>
+              </article>
+            </div>
+
+            <div class="callout">
+              <h3>Edges describe intent; physical channels carry the bytes</h3>
+              <p>
+                A logical arrow on the canvas is not its own cable. Every transfer using
+                a region pair shares that pair’s channel. Parallel arrows never add
+                capacity. One explicit path is used per transfer.
+              </p>
+            </div>
+
+            <div class="table-wrap" role="region" aria-label="The four explicit edge operations" tabindex="0">
+              <table>
+                <caption>
+                  The four edge operations. Other combinations, self loops, duplicate
+                  tuples and non-replicate cycles are rejected.
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Operation</th>
+                    <th scope="col">Allowed endpoints</th>
+                    <th scope="col">What it means</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Traffic</th>
+                    <td>Client → app</td>
+                    <td>
+                      Business requests and responses. Several explicit traffic edges can
+                      list failover apps; routing still needs a healthy connected path.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Metadata</th>
+                    <td>App → metadata store</td>
+                    <td>
+                      The app’s reads and new immutable uploads. An app has exactly one
+                      metadata edge, and that store becomes an origin for its uploads.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Blob</th>
+                    <td>
+                      Client → provider; app → provider or cache; cache → provider
+                    </td>
+                    <td>
+                      Image bytes. Direct clients read from explicit provider endpoints;
+                      proxy apps carry bytes to one provider, or through one cache that
+                      points at one provider.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Replicate</th>
+                    <td>Metadata origin → metadata recipient</td>
+                    <td>
+                      A direct per-origin log. Cycles of replicate edges are allowed and
+                      deduplicated by origin and sequence; records are not rebroadcast
+                      transitively.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="fixed-and-editable" aria-labelledby="fixed-and-editable-title">
+            <h2 id="fixed-and-editable-title">Fixed pieces and your pieces</h2>
+            <p class="section-lede">
+              There are exactly three regional Client populations and three regional
+              provider endpoints. You cannot add another Client or provider, or replace
+              the provider with your own blob store.
+            </p>
+            <div class="table-wrap" role="region" aria-label="Fixed and editable node configuration" tabindex="0">
+              <table>
+                <caption>
+                  What you can change. Fixed endpoints may be renamed and moved on the
+                  canvas only; their region is fixed.
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Kind</th>
+                    <th scope="col">What it is</th>
+                    <th scope="col">What you can edit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Client</th>
+                    <td>
+                      Fixed regional demand population: NA, EU, AP. One third of demand
+                      each, 20 ms regional RTT, 100 Gbit/s each direction on the shared
+                      population link.
+                    </td>
+                    <td>Label and position only</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Global blob provider</th>
+                    <td>
+                      Fixed regional endpoints for the mandatory original store. Each
+                      endpoint has 100 Gbit/s each direction, 10,000 read RPC/s and 2,000
+                      write RPC/s.
+                    </td>
+                    <td>Label and position only</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Application pool</th>
+                    <td>Your compute pool for control, metadata and proxy work.</td>
+                    <td>Instances, delivery, buffering, retries, retry backoff</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Metadata store</th>
+                    <td>
+                      Durable indexed records. It can be an origin writer, a replica
+                      recipient, or both.
+                    </td>
+                    <td>
+                      Backend, index mode, disk per instance, instances, local durable
+                      copies, resident pages
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Byte-bounded cache</th>
+                    <td>Read cache keyed by object key and variant. Never durable storage.</td>
+                    <td>Medium, instances, capacity, fill policy, SSD tier</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="aside">
+              A physical instance has 8 cores, 24 GB RAM (22 GB usable), a 10 Gbit/s NIC
+              in each direction, a 500 MB/s and 20,000 IOPS disk, and a 2 TB disk
+              included in its price. A pool spreads work across instances. One instance
+              failure removes one instance, not the whole pool.
+            </p>
+
+            <div class="callout">
+              <h3>Canvas position is not routing</h3>
+              <p>
+                Dragging a node changes only its position in the diagram. It does not
+                change the node’s Region or the request path. Player apps, metadata
+                stores and caches have an editable Region in the Inspector; fixed Client
+                and provider endpoints do not. To use a nearer provider, connect an
+                existing regional provider endpoint — do not drag the fixed provider and
+                expect the routing to follow.
+              </p>
+            </div>
+          </section>
+
+          <section id="choices" aria-labelledby="choices-title">
+            <h2 id="choices-title">Choices and trade-offs</h2>
+            <p class="section-lede">
+              There is no single “correct” setting. Each choice moves work, bytes, cost
+              or risk somewhere else.
+            </p>
+
+            <div class="choice-grid">
+              <article class="choice">
+                <h3>Direct or proxy delivery</h3>
+                <p>
+                  <strong>Direct:</strong> clients fetch image bytes straight from a
+                  provider endpoint. The app handles control and metadata but does not
+                  carry the original bytes. Direct apps have no blob edge; clients need
+                  explicit provider endpoint edges.
+                </p>
+                <p>
+                  <strong>Proxy:</strong> the app carries image bytes to one provider, or
+                  through exactly one cache that points at one provider. This enables
+                  caching and keeps bytes on your path, but spends app NIC, CPU and buffer
+                  memory.
+                </p>
+                <p class="tradeoff">
+                  Trade-off: direct removes app bandwidth cost; proxy adds a place to
+                  cache and observe, but adds a relay that can queue.
+                </p>
+              </article>
+
+              <article class="choice">
+                <h3>Streaming or buffered proxy</h3>
+                <p>
+                  <strong>Streaming</strong> keeps a 64 KB buffer per active hop and
+                  reserves the hops together, paying one serialization of the payload.
+                </p>
+                <p>
+                  <strong>Buffered</strong> stores and forwards: one serialization per hop
+                  plus a full payload buffer in RAM.
+                </p>
+                <p class="tradeoff">
+                  Trade-off: buffered can reach the hard memory limit sooner and adds
+                  serialization. Streaming is lighter, but the path still shares queues.
+                </p>
+              </article>
+
+              <article class="choice">
+                <h3>Add a cache</h3>
+                <p>
+                  A cache is a finite byte-bounded LRU store. RAM capacity is limited to
+                  22 GB per instance; SSD capacity is bounded by the declared disk tier.
+                  The pool capacity is divided across instances.
+                </p>
+                <p>
+                  <strong>Coalesce</strong> makes one provider fill per key when several
+                  readers miss together. <strong>Independent</strong> lets each miss fill
+                  separately.
+                </p>
+                <p class="tradeoff">
+                  Trade-off: a hit saves provider retrieval and fill traffic, not the
+                  client transfer. A cache starts empty, cannot accelerate a fresh write,
+                  and is not durable storage. Coalescing protects the provider but makes
+                  the second reader wait for the real fill.
+                </p>
+              </article>
+
+              <article class="choice">
+                <h3>Retries and backoff</h3>
+                <p>
+                  Retries are bounded from 0 to 2 with a fixed backoff. An upload retry
+                  reuses the same upload id and origin, so it cannot create a second image
+                  or metadata record.
+                </p>
+                <p class="tradeoff">
+                  Trade-off: a retry can turn a transient failure into a success, but it
+                  pays the transferred bytes again and adds load. It does not fix a
+                  missing index, an undersized store, a bad route, or a provider that is
+                  genuinely unavailable.
+                </p>
+              </article>
+
+              <article class="choice">
+                <h3>Replicas and regions</h3>
+                <p>
+                  A metadata store can hold both writer and replica roles. Replicate
+                  edges are direct per-origin logs. <code>A → B</code> and
+                  <code>B → C</code> do not imply <code>A → C</code>.
+                </p>
+                <p class="tradeoff">
+                  Trade-off: more copies and more regions improve failure tolerance and
+                  locality, but consume disk, write work and budget. A missing replicate
+                  edge is valid but incomplete, and can fail freshness at runtime.
+                </p>
+              </article>
+
+              <article class="choice">
+                <h3>Failover edges</h3>
+                <p>
+                  A client may list several connected apps. After 250 ms failure
+                  detection, routing selects the lowest-latency healthy connected app. It
+                  never follows an edge that is absent from the graph.
+                </p>
+                <p class="tradeoff">
+                  Trade-off: failover needs real capacity on the other side. Adding an
+                  arrow does not duplicate compute, metadata or cache resources.
+                </p>
+              </article>
+            </div>
+          </section>
+
+          <section id="metadata-and-search" aria-labelledby="metadata-and-search-title">
+            <h2 id="metadata-and-search-title">Metadata, indexes and search</h2>
+
+            <h3>Search is deliberately narrow</h3>
+            <p>
+              Search is by user or by one tag, returns the ten most recent matches, and
+              has no general text search. The index mode must match the query:
+            </p>
+
+            <div class="table-wrap" role="region" aria-label="Metadata index modes and supported searches" tabindex="0">
+              <table>
+                <caption>
+                  Index bytes are per image. The totals below are per complete dataset;
+                  every physical copy repeats them.
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Index mode</th>
+                    <th scope="col" class="numeric">Extra bytes per image</th>
+                    <th scope="col">What it can serve</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">None</th>
+                    <td class="numeric">0 B</td>
+                    <td>
+                      Point lookups by key only. Both user search and tag search are
+                      rejected with <code>metadata_index_missing</code>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">User</th>
+                    <td class="numeric">64 B</td>
+                    <td>Recent search by user. Tag search is still rejected.</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">User + tag</th>
+                    <td class="numeric">352 B</td>
+                    <td>
+                      Recent search by user and by one tag: 64 B for the user entry plus
+                      three 96 B tag postings.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="aside">
+              At 1.5 billion images, the base 8 KB record is about 12 TB per complete
+              regional dataset. A user index adds about 96 GB (0.096 TB) and a user-tag
+              index adds about 528 GB (0.528 TB) before physical copies, so user-tag is
+              roughly 12.528 TB of logical data per dataset. Copies multiply the physical
+              requirement.
+            </p>
+
+            <h3>SQL or KV?</h3>
+            <p>
+              Both backends are durable and both use the declared index mode. In this
+              version they have the same capacity and work coefficients; there is no
+              hidden “SQL is faster” or “KV magically searches everything” bonus. The KV
+              description is key-addressed, so it has no free general search — but
+              neither does SQL without the matching index. Do not expect a backend switch
+              to repair a missing index.
+            </p>
+
+            <h3>Shards, replicas and capacity</h3>
+            <p>For each metadata node:</p>
+            <p class="math">
+              shardCount = floor(instances ÷ replicas)<br />
+              instances must be divisible by replicas<br />
+              logical capacity = shardCount × diskTb
+            </p>
+            <p>
+              Example: 6 instances, 3 replicas and 8 TB per instance give
+              <strong>2 shards × 8 TB = 16 TB of logical capacity</strong>. That is also
+              <strong>48 TB of provisioned disk</strong> (6 × 8 TB), and the 16 TB dataset
+              copied three times is 48 TB of physical copies. Capacity provisions the
+              complete regional dataset and every physical copy, not only the bytes a
+              particular graph delivered.
+            </p>
+
+            <h3>Writes, replicas and retries</h3>
+            <p>
+              Records are immutable append-only entries keyed by a globally unique upload
+              id. An upload binds to one healthy origin before the first payload byte and
+              all retries reuse that origin. Same id with same content has one business
+              effect; same id with different content is rejected. While the owner is
+              unavailable, the id stays pending and must not append at another origin.
+            </p>
+            <p>
+              Write quorum is <code>floor(replicas ÷ 2) + 1</code>; read quorum is
+              <code>replicas − write + 1</code>. With three copies, one instance loss is
+              survivable. With two copies, a loss prevents a write quorum. More copies
+              mean more disk and write work.
+            </p>
+
+            <h3>Publication and freshness</h3>
+            <p>
+              An acknowledgement means the object is durable and the configured local
+              metadata copies are committed. It does not wait for cross-region
+              replication or global search publication; those are separate, later
+              events. The provider exposes a new object to remote reads after 60 s; an
+              origin read sees the writer’s upload immediately. A recent read that cannot
+              see the record may fall back to the origin while the record is younger than
+              that window.
+            </p>
+            <p>
+              Freshness is an assertion about successful recent reads, not a second
+              availability gate. A timed-out read during an outage counts against
+              availability; it is not automatically a freshness violation. A successful
+              stale, missing or incorrect response is a freshness problem.
+            </p>
+          </section>
+
+          <section id="capacity-and-cost" aria-labelledby="capacity-and-cost-title">
+            <h2 id="capacity-and-cost-title">Capacity, cost and measured data</h2>
+
+            <div class="two-up">
+              <div class="mini-card">
+                <h3>Analytical, day 30</h3>
+                <p>
+                  Capacity and estimated cost describe the graph currently on the canvas.
+                  They use normal daily demand for 30 days and the mature dataset. They
+                  are not a replay result.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3>Measured, this run</h3>
+                <p>
+                  Request metrics, link load and measured monthly cost come from the
+                  normal measured window. The header switches from
+                  <span class="ui">Estimated monthly cost</span> to
+                  <span class="ui">Measured monthly cost</span> only when the completed
+                  run matches the current graph and seed. Incident cost is reported
+                  separately and never extrapolated across the month.
+                </p>
+              </div>
+            </div>
+
+            <h3>The fixed and variable bill</h3>
+            <div class="table-wrap" role="region" aria-label="Conditional in-game prices" tabindex="0">
+              <table>
+                <caption>Conditional in-game prices, not vendor quotes.</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col" class="numeric">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Fixed provider originals</th>
+                    <td class="numeric">6 PB × $6/TB-month = $36,000/month</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Compute</th>
+                    <td class="numeric">$0.20 per instance-hour × 730 h</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Extra disk above 2 TB</th>
+                    <td class="numeric">$6/TB-month</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Client egress</th>
+                    <td class="numeric">$0.006/GB</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Provider retrieval</th>
+                    <td class="numeric">$0.002/GB</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Cross-region player transfer</th>
+                    <td class="numeric">$0.01/GB</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">API reads / writes</th>
+                    <td class="numeric">$0.0000004 / read · $0.000005 / write</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Monthly budget</th>
+                    <td class="numeric">$205,000</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              The fixed 6 PB provider base is shown separately from your controllable
+              spend. The provider’s internal replication is included; it is not a
+              player-owned copy. Thumbnails are provider variant reads, not 384 TB of
+              preallocated player disk.
+            </p>
+
+            <p class="aside">
+              Disk tiers change capacity, not disk speed. Every instance keeps 500 MB/s
+              and 20,000 IOPS regardless of whether you choose 2 TB, 8 TB or 16 TB. If
+              metadata IO is the bottleneck, more TB will not help; use more instances,
+              resident pages or a different index/query trade-off.
+            </p>
+
+            <h3>What the measured bill counts</h3>
+            <ul class="tight-list">
+              <li>Client egress on returned bytes.</li>
+              <li>Provider retrieval on bytes actually read from the provider.</li>
+              <li>Cross-region transfer on bytes that cross a private region pair.</li>
+              <li>
+                API fees per admitted provider RPC. A ten-thumbnail search fan-out is ten
+                reads, and retries are charged too.
+              </li>
+              <li>
+                Failed and partial transfers keep the bytes they really moved; a failure
+                is not a free refund.
+              </li>
+            </ul>
+
+            <div class="callout callout--warning">
+              <h3>Index bytes are real bytes</h3>
+              <p>
+                A user-tag index is 352 B per image on every physical copy — about
+                528 GB per complete dataset, on top of the 12 TB of base records. It can
+                still tip a store that was already close to capacity, especially with
+                several copies. Fixing search by adding an index can therefore create a
+                new capacity problem; that is a real trade-off, not a validation bug.
+              </p>
+            </div>
+
+            <p class="aside">
+              Cache capacity is a pool total. Per-instance share is
+              <code>capacityGb ÷ instances</code> and must fit 22 GB for RAM or the
+              declared SSD tier. Cache and metadata RAM are part of instance compute
+              price and are never billed twice.
+            </p>
+          </section>
+
+          <section id="read-results" aria-labelledby="read-results-title">
+            <h2 id="read-results-title">How to read the results</h2>
+
+            <h3>Find the right table</h3>
+            <ol class="steps">
+              <li>Open <span class="ui">Results &amp; telemetry</span> at the bottom of the workspace.</li>
+              <li>
+                Choose a case tab: <span class="ui">Normal daily average</span>,
+                <span class="ui">Peak daily average</span>,
+                <span class="ui">One instance per pool</span>,
+                <span class="ui">Link outage na-eu</span>, or one of the three
+                <span class="ui">Region outage</span> cases.
+              </li>
+              <li>Read <span class="ui">Gates</span> before the detailed numbers.</li>
+              <li>
+                Read <span class="ui">Operations</span> for Upload, Search and Detail.
+              </li>
+              <li>
+                Then use the node Inspector and
+                <span class="ui">Memory and physical links</span> to find where the time
+                or bytes went.
+              </li>
+            </ol>
+
+            <h3>Operation columns</h3>
+            <p>
+              <span class="ui">Operations</span> shows Offered, Completed, Success,
+              Availability, Timely, Correct, p50, p95, p99, p99.9, Samples and Queue p95.
+              The failure split and error codes are printed under each operation name.
+            </p>
+            <ul class="tight-list">
+              <li>
+                <strong>Availability</strong> uses every offered request. Rejected,
+                timed-out, incorrect, stale and missing-data responses are failures.
+              </li>
+              <li>
+                <strong>p50–p99.9</strong> use successful responses only, and always show
+                their sample count. Dropping traffic cannot improve a percentile.
+              </li>
+              <li>
+                <strong>p99.9</strong> needs at least 10,000 successful samples per
+                operation per case. A short run extends deterministically; an exhausted
+                event or memory limit is incomplete, never a pass.
+              </li>
+            </ul>
+
+            <div class="callout">
+              <h3>What a percentile means</h3>
+              <p>
+                Sort 10,000 successful requests from fastest to slowest. p50 is around the
+                middle; p95 is around the 500th slowest; p99 is around the 100th slowest;
+                p99.9 is around the 10th slowest. A p99.9 target is a promise about the
+                tail, not about the average.
+              </p>
+            </div>
+
+            <h3>Average and peak are different questions</h3>
+            <p>
+              Average says how sustained the load was. Peak says how bad the worst instant
+              was. A 100% peak by itself is <strong>not</strong> a failure: a brief spike
+              can occur in a passing run. Look for errors, rejected and timed-out
+              requests, high wait p95, and the latency tail. Conversely, a low average can
+              hide a short saturation that only peak and p99.9 reveal.
+            </p>
+
+            <h3>The node Inspector</h3>
+            <p>
+              Select a node to see that case’s measured run metrics:
+              <span class="ui">CPU average / peak</span>,
+              <span class="ui">RAM average / peak</span> against the limit,
+              <span class="ui">IO average / peak</span>,
+              <span class="ui">Network in / out peak</span> against capacity,
+              <span class="ui">Queue average / peak · wait p95</span>,
+              <span class="ui">Requests / errors / rejected</span>,
+              <span class="ui">Timed out / healthy instances</span>, and
+              <span class="ui">Bytes read / written</span>. Metadata nodes also show
+              shard and capacity load; caches show hit ratio, hits, misses and coalesced
+              fills.
+            </p>
+
+            <h3>Memory and physical links</h3>
+            <p>
+              The <span class="ui">Memory and physical links</span> section shows RAM
+              average, peak and limit per node, healthy instances, and every shared
+              physical channel with capacity, average, peak, bytes sent and received,
+              transfers and Queue p95. A logical edge on the canvas is not its own
+              100 Gbit/s link.
+            </p>
+          </section>
+
+          <section id="diagnose" aria-labelledby="diagnose-title">
+            <h2 id="diagnose-title">Diagnose by symptom</h2>
+            <p class="section-lede">
+              Use these as hypotheses to test, not guaranteed fixes. Keep the seed fixed
+              and change one thing.
+            </p>
+
+            <div class="table-wrap" role="region" aria-label="Symptom, what to watch, experiment and trade-off" tabindex="0">
+              <table class="diagnosis-table">
+                <caption>
+                  A starting point for a failed gate. Always confirm with the exact case’s
+                  Operations and Inspector numbers.
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Symptom</th>
+                    <th scope="col">Watch</th>
+                    <th scope="col">Experiment</th>
+                    <th scope="col">Trade-off</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Search fails immediately</th>
+                    <td>
+                      <code>metadata_index_missing</code> under the Search row; metadata
+                      Index mode
+                    </td>
+                    <td>
+                      Set Index mode to User + tag for both query types, then check
+                      metadata capacity and disk
+                    </td>
+                    <td>Index bytes on every copy; capacity and cost rise</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Upload p99.9 is high</th>
+                    <td>
+                      Operations Upload; app, provider and metadata Queue p95; provider
+                      errors; retries
+                    </td>
+                    <td>
+                      Add app instances, choose the nearest existing provider endpoint
+                      for the app or direct client, and set the app’s editable Region.
+                      Do not expect dragging a fixed provider to change routing.
+                    </td>
+                    <td>
+                      Compute cost; moving bytes may shift load; retries protect
+                      transients but add load
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Search p99.9 is high</th>
+                    <td>
+                      Metadata CPU and IO; app Queue p95; client access link; cache hit
+                      ratio and coalesced fills
+                    </td>
+                    <td>
+                      Add metadata instances (keeping instances divisible by replicas)
+                      or resident metadata pages, add a cache, or set the app and
+                      metadata Region so the app-to-store round trip is local.
+                    </td>
+                    <td>
+                      More copies and disk cost; a cache starts cold and does not help
+                      fresh writes; resident pages reduce RAM available elsewhere
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Detail p99.9 is high</th>
+                    <td>
+                      Metadata point lookup; origin fallback; cross-region link; provider
+                      retrieval; cache hit ratio
+                    </td>
+                    <td>
+                      Set the app or a metadata replica Region so the lookup is local,
+                      add a cache, or remove unnecessary cross-region paths
+                    </td>
+                    <td>
+                      Replica storage and replication cost; cache memory; more edges to
+                      maintain
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">One instance per pool fails</th>
+                    <td>
+                      Healthy instances, metadata quorum, cache and app capacity in the
+                      node case
+                    </td>
+                    <td>
+                      Add instances or local durable copies so the surviving pool still
+                      meets the target
+                    </td>
+                    <td>Compute and disk cost; two copies cannot commit after a loss</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Region outage fails</th>
+                    <td>
+                      Explicit traffic and provider edges; 250 ms failover; surviving
+                      region capacity
+                    </td>
+                    <td>
+                      Add a healthy app and provider path in another region, with real
+                      capacity behind it
+                    </td>
+                    <td>
+                      Duplicate capacity and cross-region traffic; arrows alone add
+                      nothing
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Freshness or publication fails</th>
+                    <td>
+                      Replicate edges, replication lag, recent-read probes, the
+                      consistency postlude
+                    </td>
+                    <td>
+                      Add the missing direct replication edge, or set the replica Region
+                      closer and give it capacity
+                    </td>
+                    <td>
+                      Write work, disk and cost; replication is not transitive, and a
+                      missing edge is not a graph error
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Budget is over</th>
+                    <td>
+                      Fixed versus controllable cost; measured retrieval, egress,
+                      cross-region and API lines
+                    </td>
+                    <td>
+                      Remove unnecessary copies, disk tiers or cache capacity; keep the
+                      ones a gate actually needs
+                    </td>
+                    <td>
+                      Saving money can reduce availability, freshness or headroom; rerun
+                      all seven cases
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="experiments" aria-labelledby="experiments-title">
+            <h2 id="experiments-title">Experiments and saved state</h2>
+
+            <div class="two-up">
+              <div class="mini-card">
+                <h3>A fair comparison</h3>
+                <ol class="compact-list">
+                  <li>Export the current graph if you may want it back.</li>
+                  <li>Keep the same Seed.</li>
+                  <li>Change exactly one setting or edge.</li>
+                  <li>Run again and open the same case tab.</li>
+                  <li>Compare Operations, then the relevant node and link rows.</li>
+                  <li>Keep the change only if the whole gate set improves.</li>
+                </ol>
+              </div>
+              <div class="mini-card">
+                <h3>What is saved</h3>
+                <p>
+                  Nothing is saved automatically. <span class="ui">Export</span> saves the
+                  graph, node settings, positions and seed. <span class="ui">Import</span>
+                  opens that state later. A page reload or
+                  <span class="ui">Reset</span> starts from the starter graph and the
+                  default seed with no previous run. Open the help page in a new tab so
+                  your in-memory diagram is not replaced.
+                </p>
+              </div>
+            </div>
+
+            <h3>Things worth testing</h3>
+            <ul class="tight-list">
+              <li>
+                Does the search failure disappear when only the index changes, and what
+                does that do to metadata capacity?
+              </li>
+              <li>
+                Which queue grows first when you add load: app, metadata, provider
+                endpoint, or a shared region link?
+              </li>
+              <li>
+                Does a cache improve a warm steady state but leave the cold start and
+                upload path unchanged?
+              </li>
+              <li>
+                Does a third durable copy survive one instance loss where two cannot,
+                and what does it cost?
+              </li>
+              <li>
+                Does a region outage fail because capacity is missing on the failover
+                path, rather than because the arrow is missing?
+              </li>
+            </ul>
+
+            <p class="aside">
+              The game shows reasons, not a hidden answer key. A change can be logically
+              sensible and still lose on cost or on another case.
+            </p>
+          </section>
+
+          <section id="limits" aria-labelledby="limits-title">
+            <h2 id="limits-title">What the counters cannot tell you</h2>
+            <p class="section-lede">
+              The shared counters are useful, but they are not a distributed trace. Read
+              them together.
+            </p>
+
+            <ul class="limits-list">
+              <li>
+                <strong>Operation Queue p95 is not a total wait.</strong> It keeps the
+                first non-zero queued wait for each request, not the sum of waits across
+                every stage.
+              </li>
+              <li>
+                <strong>Node and link Queue p95 is shared waiting, not proof of cause.</strong>
+                It aggregates tasks that used the same resource. It does not attribute a
+                specific request’s delay to the exact resource that blocked it.
+              </li>
+              <li>
+                <strong>Do not add percentiles.</strong> p95 plus p95 is not the p95 of a
+                pipeline. A p95 queue also cannot explain a p99.9 tail, because the rare
+                event lies outside that 5% band.
+              </li>
+              <li>
+                <strong>There is no per-request waterfall view.</strong> The UI has no
+                request trace or span waterfall. Use Operations, the node Inspector, the
+                physical link table and the gates together.
+              </li>
+              <li>
+                <strong>Low CPU does not rule out a network or IO bottleneck.</strong>
+                A request can wait on a NIC, disk IO, provider admission, metadata
+                quorum, or head-of-line blocking while CPU looks idle.
+              </li>
+              <li>
+                <strong>The kernel is a fixed-lane FIFO model.</strong> It is not TCP and
+                not ideal fair sharing. A wide multi-hop proxy path can wait behind
+                another task’s head even when every resource has spare average capacity.
+                This is a disclosed limitation, not a hidden penalty or bonus.
+              </li>
+            </ul>
+
+            <div class="callout callout--warning">
+              <h3>Don’t diagnose from one number</h3>
+              <p>
+                A high peak does not prove failure; a low average does not prove health.
+                A successful p99.9 does not excuse failed availability. A missing error
+                code does not prove the path was fast. Confirm the symptom in the same
+                case, seed and window before changing the graph.
+              </p>
+            </div>
+          </section>
+
+          <section id="technical" aria-labelledby="technical-title">
+            <h2 id="technical-title">Optional model details</h2>
+            <p class="section-lede">
+              You do not need these coefficients to play. They are here when you want to
+              know why the simulator produced a number.
+            </p>
+
+            <details>
+              <summary>Workload, targets and qualification</summary>
+              <div class="details-body">
+                <ul class="tight-list">
+                  <li>
+                    Local propagation is 1 ms one-way and the regional Client RTT is
+                    20 ms. Inter-region one-way propagation is 40 ms for na–eu, 70 ms for
+                    eu–ap and 80 ms for na–ap. Each direction has its own 100 Gbit/s
+                    channel; the two directions are not pooled.
+                  </li>
+                  <li>
+                    One million users, 50 uploads/day and 50 searches/day for 30 days:
+                    1.5 billion images. Daily averages: 578.7 uploads/s, 578.7 searches/s,
+                    1,157.4 detail clicks/s.
+                  </li>
+                  <li>
+                    Each search returns ten 8 KB result records and ten 256 KB
+                    thumbnails. Upload carries one 4 MB original and 8 KB of metadata.
+                    Detail opens one 4 MB original and an 8 KB record.
+                  </li>
+                  <li>
+                    Normal and peak targets are p99.9 successful responses: Detail
+                    300 ms, Search 250 ms, Upload 1,000 ms. Incident targets: 600 ms,
+                    800 ms and 2,000 ms. Availability is at least 99.5% in normal/peak and
+                    98% in an incident. The final 10 s recovery window needs 99.5%.
+                  </li>
+                  <li>
+                    Detail’s 300 ms target is a game adaptation of Google’s original
+                    200 ms exercise. The game adds 1% recent-read probes across three
+                    regions and a 60 s remote-visibility window; a correct cross-region
+                    origin read would already spend about 227 ms before app, metadata and
+                    client overhead.
+                  </li>
+                  <li>
+                    Seven required cases: Normal, Peak, One instance per pool, Link outage
+                    na-eu, and a separate Region outage for NA, EU and AP. A scenario
+                    subset is exploratory.
+                  </li>
+                  <li>
+                    Each case: 20 s warm-up, 60 s measured traffic, up to 10 s request
+                    drain, then a separate no-new-offers consistency postlude through the
+                    last acknowledged upload + 120 s. Faults start at measured second 20,
+                    last 20 s, then 20 s recovery.
+                  </li>
+                  <li>
+                    p99.9 requires at least 10,000 successful samples per operation per
+                    case. Availability uses every offered request; percentiles use
+                    successful responses only.
+                  </li>
+                </ul>
+              </div>
+            </details>
+
+            <details>
+              <summary>Work coefficients and resource kernel</summary>
+              <div class="details-body">
+                <ul class="tight-list">
+                  <li>
+                    CPU is core-milliseconds. An app request costs 0.25 ms parse plus
+                    0.35/0.5/0.9 ms for detail/search/upload handling. Metadata point
+                    lookup is 0.2 ms; user index 0.35 ms; tag index 0.45 ms plus 200
+                    posting reads.
+                  </li>
+                  <li>
+                    Each instance has four IO lanes sharing 500 MB/s and 20,000 IOPS, so
+                    one lane is 125 MB/s and 5,000 IOPS. A stage lasts as long as its
+                    slowest of CPU, IO and network work.
+                  </li>
+                  <li>
+                    One network flow owns one 1 Gbit/s lane on each physical resource of
+                    its explicit path. A 10 Gbit/s NIC exposes 10 one-way lanes in each
+                    direction; a 100 Gbit/s shared link or provider endpoint exposes 100
+                    lanes per direction. Parallel arrows never add capacity.
+                  </li>
+                  <li>
+                    Provider read service-start bands are 35/70/100/120 ms; write bands
+                    are 80/140/200 ms. A write acknowledgement follows the incoming
+                    payload and 4 ms of durable service.
+                  </li>
+                  <li>
+                    Streaming reserves every hop together and pays one serialization.
+                    Buffered pays one serialization per hop and holds the payload. A relay
+                    uses a small share of CPU and IO, not a whole core per flow.
+                  </li>
+                  <li>
+                    Propagation adds geographic delay and holds no bandwidth. A fault
+                    during propagation still loses the response, and bytes already
+                    serialized stay billed.
+                  </li>
+                  <li>
+                    Search children are concurrent on the server side but share one
+                    end-user access stage. Coalesced fills make the second reader wait for
+                    the real fill; a failed fill wakes the waiter for a retry.
+                  </li>
+                  <li>
+                    Metadata replication is direct per-origin, pipelined, and never
+                    rebroadcasts applied records. There is no general consensus, leader
+                    election or Byzantine protocol in v1. Every scenario starts with
+                    replicas caught up to the mature synthetic dataset.
+                  </li>
+                  <li>
+                    Prices and coefficients are conditional in-game teaching values, not
+                    vendor quotes. The budget has been checked against two independent
+                    design families and five seeds in development, but it remains an
+                    in-game target, not a guarantee that any graph passes.
+                  </li>
+                </ul>
+              </div>
+            </details>
+
+            <details>
+              <summary>What the model deliberately simplifies</summary>
+              <div class="details-body">
+                <ul class="tight-list">
+                  <li>
+                    Metadata search is a bounded index-page work model, not a database
+                    implementation. “No index” means the model rejects search; it does not
+                    claim that a real SQL database cannot scan.
+                  </li>
+                  <li>
+                    Transport is fixed-quantum lane reservation with one FIFO per
+                    resource, not TCP, congestion control or ideal fair sharing.
+                  </li>
+                  <li>
+                    The provider’s replication is included in the fixed price and is not a
+                    player-owned copy. Its remote visibility is a teaching window, not a
+                    real vendor guarantee.
+                  </li>
+                  <li>
+                    The node and link queue counters are shared-resource aggregates. They
+                    are not a causal per-request trace, and there is no waterfall view.
+                  </li>
+                  <li>
+                    The UI labels are part of the product: use the exact names in this
+                    guide when comparing screenshots or notes.
+                  </li>
+                </ul>
+              </div>
+            </details>
+          </section>
+
+          <section id="return" aria-labelledby="return-title">
+            <h2 id="return-title">Returning to the game</h2>
+            <p>
+              Close this tab and continue in the game tab you already have open. This
+              guide does not hold game state, does not reload the editor, and does not
+              reset the diagram. If you opened it from the
+              <span class="ui">Help</span> link, that link used a new tab specifically so
+              your in-memory run would survive.
+            </p>
+            <p class="aside">
+              The Help page itself is static HTML and CSS with no scripts or external
+              dependencies. You can bookmark it or open it in another window while you
+              play.
+            </p>
+          </section>
+        </main>
+      </div>
+
+      <footer class="footer">
+        <p>
+          Image Atlas player guide. The game is a teaching simulation; its prices,
+          coefficients and targets are not production advice.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

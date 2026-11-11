@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "levelId": "image-atlas",
+  "modelVersion": "1.0.0",
+  "name": "Storage shortfall (valid topology, insufficient disk)",
+  "nodes": [
+    {
+      "id": "client-na",
+      "kind": "client",
+      "label": "North America clients",
+      "position": {
+        "x": -900,
+        "y": -240
+      },
+      "region": "na",
+      "config": {
+        "clientRttMs": 20,
+        "fullDuplex": true,
+        "aggregateBandwidthGbitPerSec": 100,
+        "requestAccessBandwidthGbitPerSec": 1
+      }
+    },
+    {
+      "id": "client-eu",
+      "kind": "client",
+      "label": "Europe clients",
+      "position": {
+        "x": -900,
+        "y": 0
+      },
+      "region": "eu",
+      "config": {
+        "clientRttMs": 20,
+        "fullDuplex": true,
+        "aggregateBandwidthGbitPerSec": 100,
+        "requestAccessBandwidthGbitPerSec": 1
+      }
+    },
+    {
+      "id": "client-ap",
+      "kind": "client",
+      "label": "Asia Pacific clients",
+      "position": {
+        "x": -900,
+        "y": 240
+      },
+      "region": "ap",
+      "config": {
+        "clientRttMs": 20,
+        "fullDuplex": true,
+        "aggregateBandwidthGbitPerSec": 100,
+        "requestAccessBandwidthGbitPerSec": 1
+      }
+    },
+    {
+      "id": "app-na",
+      "kind": "app",
+      "label": "North America app pool",
+      "position": {
+        "x": -200,
+        "y": -240
+      },
+      "region": "na",
+      "config": {
+        "instances": 2,
+        "delivery": "proxy",
+        "buffering": "streaming",
+        "retries": 0,
+        "retryBackoffMs": 0
+      }
+    },
+    {
+      "id": "app-eu",
+      "kind": "app",
+      "label": "Europe app pool",
+      "position": {
+        "x": -200,
+        "y": 0
+      },
+      "region": "eu",
+      "config": {
+        "instances": 2,
+        "delivery": "proxy",
+        "buffering": "streaming",
+        "retries": 0,
+        "retryBackoffMs": 0
+      }
+    },
+    {
+      "id": "app-ap",
+      "kind": "app",
+      "label": "Asia Pacific app pool",
+      "position": {
+        "x": -200,
+        "y": 240
+      },
+      "region": "ap",
+      "config": {
+        "instances": 2,
+        "delivery": "proxy",
+        "buffering": "streaming",
+        "retries": 0,
+        "retryBackoffMs": 0
+      }
+    },
+    {
+      "id": "blob-na",
+      "kind": "blob",
+      "label": "Global blob · NA endpoint",
+      "position": {
+        "x": 900,
+        "y": -240
+      },
+      "region": "na",
+      "config": {
+        "providerId": "global-blob",
+        "endpointBandwidthGbitPerSec": 100,
+        "readRpcPerSec": 10000,
+        "writeRpcPerSec": 2000,
+        "remoteReadVisibilityMs": 60000,
+        "originReadYourWrites": true,
+        "durableAck": "global",
+        "thumbnailVariantReads": true,
+        "materializedThumbnails": false
+      }
+    },
+    {
+      "id": "blob-eu",
+      "kind": "blob",
+      "label": "Global blob · EU endpoint",
+      "position": {
+        "x": 900,
+        "y": 0
+      },
+      "region": "eu",
+      "config": {
+        "providerId": "global-blob",
+        "endpointBandwidthGbitPerSec": 100,
+        "readRpcPerSec": 10000,
+        "writeRpcPerSec": 2000,
+        "remoteReadVisibilityMs": 60000,
+        "originReadYourWrites": true,
+        "durableAck": "global",
+        "thumbnailVariantReads": true,
+        "materializedThumbnails": false
+      }
+    },
+    {
+      "id": "blob-ap",
+      "kind": "blob",
+      "label": "Global blob · AP endpoint",
+      "position": {
+        "x": 900,
+        "y": 240
+      },
+      "region": "ap",
+      "config": {
+        "providerId": "global-blob",
+        "endpointBandwidthGbitPerSec": 100,
+        "readRpcPerSec": 10000,
+        "writeRpcPerSec": 2000,
+        "remoteReadVisibilityMs": 60000,
+        "originReadYourWrites": true,
+        "durableAck": "global",
+        "thumbnailVariantReads": true,
+        "materializedThumbnails": false
+      }
+    },
+    {
+      "id": "metadata-na",
+      "kind": "metadata",
+      "label": "Shared metadata origin",
+      "position": {
+        "x": 330,
+        "y": 0
+      },
+      "region": "na",
+      "config": {
+        "backend": "sql",
+        "index": "user-tag",
+        "diskTb": 2,
+        "instances": 1,
+        "replicas": 1,
+        "residentCacheGb": 8
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "traffic-na",
+      "source": "client-na",
+      "target": "app-na",
+      "operation": "traffic"
+    },
+    {
+      "id": "blob-na",
+      "source": "app-na",
+      "target": "blob-na",
+      "operation": "blob"
+    },
+    {
+      "id": "metadata-na",
+      "source": "app-na",
+      "target": "metadata-na",
+      "operation": "metadata"
+    },
+    {
+      "id": "traffic-eu",
+      "source": "client-eu",
+      "target": "app-eu",
+      "operation": "traffic"
+    },
+    {
+      "id": "blob-eu",
+      "source": "app-eu",
+      "target": "blob-eu",
+      "operation": "blob"
+    },
+    {
+      "id": "metadata-eu",
+      "source": "app-eu",
+      "target": "metadata-na",
+      "operation": "metadata"
+    },
+    {
+      "id": "traffic-ap",
+      "source": "client-ap",
+      "target": "app-ap",
+      "operation": "traffic"
+    },
+    {
+      "id": "blob-ap",
+      "source": "app-ap",
+      "target": "blob-ap",
+      "operation": "blob"
+    },
+    {
+      "id": "metadata-ap",
+      "source": "app-ap",
+      "target": "metadata-na",
+      "operation": "metadata"
+    }
+  ]
+}

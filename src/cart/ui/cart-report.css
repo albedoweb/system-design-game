@@ -1,0 +1,681 @@
+/* Global Cart results report: verdict card, notices, tables, tabs and collapsible sections.
+   Plain CSS, scoped under .cart-results where it overrides shared game-ui rules.
+   Only theme tokens from cart-theme.css are used. */
+
+/* Report rhythm: 20 px between sections; wide tables scroll in their own wrapper. */
+.cart-results {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.cart-results > * {
+  margin-block: 0;
+  min-width: 0;
+}
+
+/* Verdict card ------------------------------------------------------------- */
+
+.cart-verdict {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.cart-verdict__body {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* 40 px round badge with a CSS-drawn check, cross or pause mark. */
+.cart-verdict__badge {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface-muted);
+}
+
+.cart-verdict__badge::before,
+.cart-verdict__badge::after {
+  content: "";
+  position: absolute;
+  border-radius: 2px;
+}
+
+.cart-verdict--pass .cart-verdict__badge { background: var(--success-soft); }
+.cart-verdict--fail .cart-verdict__badge { background: var(--danger-soft); }
+.cart-verdict--partial .cart-verdict__badge { background: var(--warning-soft); }
+
+/* Check: a rotated L. */
+.cart-verdict--pass .cart-verdict__badge::before {
+  left: 15px;
+  top: 10px;
+  width: 7px;
+  height: 13px;
+  border: solid var(--success);
+  border-width: 0 2.5px 2.5px 0;
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+.cart-verdict--pass .cart-verdict__badge::after {
+  content: none;
+}
+
+/* Cross: two crossed bars. */
+.cart-verdict--fail .cart-verdict__badge::before,
+.cart-verdict--fail .cart-verdict__badge::after {
+  top: 19px;
+  left: 11px;
+  width: 18px;
+  height: 2.5px;
+  background: var(--danger);
+}
+
+.cart-verdict--fail .cart-verdict__badge::before { transform: rotate(45deg); }
+.cart-verdict--fail .cart-verdict__badge::after { transform: rotate(-45deg); }
+
+/* Pause: two upright bars. */
+.cart-verdict--partial .cart-verdict__badge::before,
+.cart-verdict--partial .cart-verdict__badge::after {
+  top: 12px;
+  width: 3px;
+  height: 16px;
+  background: var(--warning);
+}
+
+.cart-verdict--partial .cart-verdict__badge::before { left: 14px; }
+.cart-verdict--partial .cart-verdict__badge::after { left: 23px; }
+
+.cart-verdict h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.cart-verdict__sentence {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.cart-verdict__cost {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  color: var(--ink);
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-verdict__unit {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cart-verdict__caption {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+/* Count-up number. The text is the final formatted value once the animation ends. */
+.cart-number {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Collapsible sections ----------------------------------------------------- */
+
+details.cart-report__more {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+details.cart-report__more > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  transition: background-color var(--dur-1) var(--ease);
+}
+
+details.cart-report__more > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.cart-report__more > summary::after {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-right: 3px;
+  border-right: 1.5px solid var(--muted);
+  border-bottom: 1.5px solid var(--muted);
+  transform: rotate(45deg);
+  transition: transform var(--dur-2) var(--ease);
+}
+
+details.cart-report__more[open] > summary::after {
+  transform: rotate(-135deg);
+  margin-top: 3px;
+}
+
+details.cart-report__more > summary:hover {
+  background: var(--surface-soft);
+}
+
+details.cart-report__more[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+
+details.cart-report__more > .cart-report__body {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+}
+
+.cart-report__chips {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cart-report__facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.cart-report__facts dt { color: var(--muted); }
+.cart-report__facts dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Notices ------------------------------------------------------------------ */
+
+/* Neutral information card, e.g. "Why reads and checkouts fail". Beats .cart-run-blocked. */
+.cart-run-blocked.cart-notice--info {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.cart-run-blocked.cart-notice--info strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.cart-run-blocked.cart-notice--info p {
+  margin: 0;
+}
+
+.cart-run-blocked.cart-notice--info ul {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cart-run-blocked.cart-notice--info li {
+  display: block;
+  padding: 8px 0 8px 14px;
+  border-top: 1px solid var(--line);
+  position: relative;
+}
+
+.cart-run-blocked.cart-notice--info li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 16px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Overloaded components: amber accent card, one row per sentence with an amber dot. */
+.cart-bottleneck {
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--warning);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.cart-bottleneck h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cart-bottleneck__intro,
+.cart-bottleneck__more {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.cart-bottleneck__more {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.cart-bottleneck__case h4 {
+  margin: 6px 0 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cart-bottleneck__case ul {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.cart-bottleneck__case li {
+  position: relative;
+  padding: 7px 0 7px 16px;
+  border-top: 1px solid var(--line);
+  line-height: 1.5;
+}
+
+.cart-bottleneck__case li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 14px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--warning);
+}
+
+/* Tables ------------------------------------------------------------------- */
+
+.cart-results .game-table-wrap {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.cart-results .game-table {
+  font-size: 12.5px;
+}
+
+.cart-results .game-table caption {
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.cart-results .game-table th,
+.cart-results .game-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cart-results .game-table thead th {
+  padding-block: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  background: var(--surface-soft);
+}
+
+.cart-results .game-table tbody th {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.cart-results .game-table__sub {
+  font-size: 11.5px;
+}
+
+/* Numeric columns: right-aligned with tabular figures. */
+.cart-table--numeric th:not(:first-child),
+.cart-table--numeric td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pass / Fail result cells as small soft pills. */
+.cart-results .game-table .is-pass,
+.cart-results .game-table .is-fail,
+.cart-results .game-table .is-warn {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.cart-results .game-table .is-pass { background: var(--success-soft); color: var(--success); }
+.cart-results .game-table .is-fail { background: var(--danger-soft); color: var(--danger); }
+.cart-results .game-table .is-warn { background: var(--warning-soft); color: var(--warning); }
+
+/* A measured wait of at least 50 ms, or any refused operation: soft amber pill. */
+.cart-load--hot {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scenario tabs: segmented control with a small status dot. */
+.cart-results .cart-segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin: 0;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-muted);
+  max-width: 100%;
+  width: fit-content;
+  align-self: flex-start;
+  justify-self: start;
+}
+
+.cart-results .cart-segmented [role="tab"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 4px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.cart-results .cart-segmented [role="tab"]::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--faint);
+}
+
+.cart-results .cart-segmented [role="tab"].cart-tab--pass::before { background: var(--success); }
+.cart-results .cart-segmented [role="tab"].cart-tab--fail::before { background: var(--danger); }
+.cart-results .cart-segmented [role="tab"].cart-tab--incomplete::before { background: var(--warning); }
+
+.cart-results .cart-segmented [role="tab"] small {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.cart-results .cart-segmented [role="tab"][aria-selected="true"] {
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: var(--shadow-sm);
+  color: var(--ink);
+}
+
+/* Run snapshot: four equal stat cards. */
+.cart-results .cart-run-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.cart-results .cart-run-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.cart-results .cart-run-summary > div > span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.cart-results .cart-run-summary > div > strong {
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-results .cart-run-summary > .has-problems {
+  border-color: color-mix(in srgb, var(--danger) 25%, transparent);
+  background: var(--danger-soft);
+}
+
+.cart-results .cart-run-summary > .has-problems > strong {
+  color: var(--danger);
+}
+
+/* Report chart figures and other existing report blocks ----------------- */
+
+.cart-results .cart-report__chips .ui-button {
+  min-height: 28px;
+}
+
+@media (max-width: 760px) {
+  .cart-results .cart-run-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  details.cart-report__more > summary,
+  details.cart-report__more > summary::after,
+  .cart-results .cart-segmented [role="tab"] {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Traffic charts in the Cart results report.
+   The shared MetricChart/SeriesChart SVG has no size of its own: without a
+   height rule the viewBox scales to the full dialog width (about 1900 px on a
+   large screen), which enlarges every glyph and stroke and makes the chart
+   about 700 px tall. These rules cap the width, fix the aspect ratio through
+   the SVG viewBox (340 x 132) and scale the SVG text and strokes to match.
+   Everything is scoped under .cart-report__chart so other levels are untouched. */
+
+/* Two columns on wide dialogs (container width >= 1000 px), one column below. */
+.cart-report__charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin-block: 8px;
+  container-type: inline-size;
+}
+
+@container (min-width: 1000px) {
+  .cart-report__charts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Each chart: at most 560 px wide (figure box), left-aligned. */
+.cart-report__chart {
+  min-width: 0;
+  max-width: 560px;
+}
+
+.cart-report__chart .chart {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 10px 14px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+}
+
+.cart-report__chart .chart figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  margin-bottom: 4px;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.cart-report__chart .chart__unit {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Height comes from the aspect ratio of the viewBox (340 x 132): 520 px wide
+   gives about 200 px tall. Narrow containers shrink the SVG proportionally.
+   overflow: visible lets the top Y-axis label extend into the figure padding
+   instead of being clipped by the SVG box. */
+.cart-report__chart .chart svg {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  aspect-ratio: 340 / 132;
+  overflow: visible;
+}
+
+/* viewBox scale at 520 px is about 1.53, so 7.5 user units render near 11.5 px
+   and a 1.3 unit stroke renders near 2 px. */
+.cart-report__chart .chart__tick {
+  fill: var(--muted);
+  font-size: 7.5px;
+}
+
+.cart-report__chart .chart__axis {
+  stroke: var(--line-strong);
+  stroke-width: 0.8;
+}
+
+.cart-report__chart .chart path {
+  stroke-width: 1.3;
+}
+
+/* Legend: one row of items with colour swatches. The swatch colour is the
+   inline background set by SeriesChart, so only shape and size are styled. */
+.cart-report__chart .chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.cart-report__chart .chart__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cart-report__chart .chart__legend li > span {
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+/* The traffic charts draw no critical window, so that legend entry is hidden. */
+.cart-report__chart .chart__legend li.chart__legend-critical {
+  display: none;
+}
+
+/* Number ticker: the real text is the final value; the moving digits are a visual overlay. */
+.cart-number {
+  position: relative;
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-number.is-ticking {
+  color: transparent;
+}
+
+.cart-number.is-ticking::before {
+  content: attr(data-display);
+  position: absolute;
+  inset: 0 auto auto 0;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* Explanatory notes under report tables: quiet, same size as table captions. */
+.cart-report__note {
+  margin: 6px 2px 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}

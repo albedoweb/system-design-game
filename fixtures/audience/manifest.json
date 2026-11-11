@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "levelId": "live-audience",
+  "note": "Canonical graph fixtures. Passing and failing families are calibration candidates only; no family is proven until A101 runs the real evaluator on calibration and holdout seeds.",
+  "fixtures": [
+    {
+      "file": "starter.json",
+      "class": "starter",
+      "note": "Users-only starter document. Parses, but validation rejects it for a run until services are added."
+    },
+    {
+      "file": "family-query-large.json",
+      "class": "candidate-pass",
+      "note": "Large SQL query behind the managed Load Balancer with two Application instances."
+    },
+    {
+      "file": "family-cache-query.json",
+      "class": "candidate-pass",
+      "note": "Small SQL query plus shared Cache with 2 s TTL behind the managed Load Balancer."
+    },
+    {
+      "file": "family-projection.json",
+      "class": "candidate-pass",
+      "note": "Small SQL projection with two Workers publishing an ordered prefix behind the managed Load Balancer."
+    },
+    {
+      "file": "fail-single-app.json",
+      "class": "candidate-fail",
+      "note": "One Application instance should lose capacity during its required fault case."
+    },
+    {
+      "file": "fail-direct-no-lb.json",
+      "class": "candidate-fail",
+      "note": "Two Application instances without a Load Balancer: a direct path reaches only slot 0, so the fault case should fail naturally."
+    },
+    {
+      "file": "fail-small-query.json",
+      "class": "candidate-fail",
+      "note": "Small SQL with the query plan should be undersized for the peak scan and queue demand."
+    },
+    {
+      "file": "fail-stale-ttl.json",
+      "class": "candidate-fail",
+      "note": "15 s Cache TTL should still fail the 5 s freshness gate and exact snapshot window."
+    },
+    {
+      "file": "invalid-projection-without-worker.json",
+      "class": "invalid",
+      "note": "The projection read plan cannot complete without a Worker pool connected to SQL."
+    },
+    {
+      "file": "invalid-cross-level.json",
+      "class": "invalid",
+      "note": "A graph bound to another level id is rejected before evaluation."
+    },
+    {
+      "file": "invalid-unknown-config.json",
+      "class": "invalid",
+      "note": "Unknown per-component config is rejected; fixed policies are not player knobs."
+    },
+    {
+      "file": "invalid-both-routes.json",
+      "class": "invalid",
+      "note": "Direct Users -> App and Users -> LB -> App routes exist at the same time."
+    },
+    {
+      "file": "invalid-cycle.json",
+      "class": "invalid",
+      "note": "SQL -> App is an unsupported dependency and forms a cycle."
+    },
+    {
+      "file": "invalid-duplicate-app.json",
+      "class": "invalid",
+      "note": "Two Application pools are ambiguous."
+    },
+    {
+      "file": "invalid-dangling-edge.json",
+      "class": "invalid",
+      "note": "A connection points to a missing SQL node."
+    },
+    {
+      "file": "invalid-ambiguous-link.json",
+      "class": "invalid",
+      "note": "Two identical Users -> App connections make routing ambiguous."
+    }
+  ]
+}

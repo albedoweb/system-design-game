@@ -1,0 +1,102 @@
+{
+  "id": "cheap-pass",
+  "title": "Cheap candidate",
+  "levelId": "cold-cache",
+  "contentVersion": "1.0.0",
+  "graph": {
+    "schemaVersion": 1,
+    "levelId": "cold-cache",
+    "nodes": [
+      {
+        "id": "client-1",
+        "kind": "client",
+        "label": "Client",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "config": {
+          "size": "small",
+          "queueLimit": 128,
+          "poolSize": 8,
+          "ttlSeconds": 120,
+          "coalescing": false
+        }
+      },
+      {
+        "id": "app-1",
+        "kind": "appServer",
+        "label": "App Server",
+        "position": {
+          "x": 150,
+          "y": 0
+        },
+        "config": {
+          "size": "medium",
+          "queueLimit": 128,
+          "poolSize": 8,
+          "ttlSeconds": 120,
+          "coalescing": false
+        }
+      },
+      {
+        "id": "cache-1",
+        "kind": "cache",
+        "label": "Cache",
+        "position": {
+          "x": 300,
+          "y": -60
+        },
+        "config": {
+          "size": "medium",
+          "queueLimit": 128,
+          "poolSize": 8,
+          "ttlSeconds": 120,
+          "coalescing": true
+        }
+      },
+      {
+        "id": "db-1",
+        "kind": "database",
+        "label": "Database",
+        "position": {
+          "x": 450,
+          "y": 0
+        },
+        "config": {
+          "size": "medium",
+          "queueLimit": 128,
+          "poolSize": 8,
+          "ttlSeconds": 120,
+          "coalescing": false
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-client-app",
+        "source": "client-1",
+        "target": "app-1",
+        "sourcePort": "out"
+      },
+      {
+        "id": "e-app-cache",
+        "source": "app-1",
+        "target": "cache-1",
+        "sourcePort": "read"
+      },
+      {
+        "id": "e-cache-db",
+        "source": "cache-1",
+        "target": "db-1",
+        "sourcePort": "miss"
+      },
+      {
+        "id": "e-app-db",
+        "source": "app-1",
+        "target": "db-1",
+        "sourcePort": "write"
+      }
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "seeds": [
+    1729
+  ],
+  "families": [
+    "central-journal",
+    "replicated-stores",
+    "parallel-cache"
+  ],
+  "sizes": [
+    "S",
+    "M"
+  ],
+  "placements": [
+    "us-west",
+    "eu-central",
+    "ap-northeast"
+  ],
+  "tiers": [
+    2,
+    8,
+    32
+  ],
+  "controls": [
+    "central-synchronous",
+    "stale-cache",
+    "undercapacity",
+    "over-budget"
+  ],
+  "jobs": 6
+}

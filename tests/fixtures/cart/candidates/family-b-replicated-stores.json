@@ -1,0 +1,251 @@
+{
+  "id": "family-b-replicated-stores",
+  "kind": "candidate",
+  "family": "replicated-stores",
+  "title": "Family B — replicated regional stores",
+  "description": "Every region runs an active cart store and each store replicates both directions with its peers. Inventory placement is swept independently.",
+  "preliminaryVerdict": null,
+  "sweep": {
+    "sizes": true,
+    "placements": true,
+    "tiers": true
+  },
+  "graph": {
+    "levelId": "global-cart",
+    "graphVersion": "cart-graph-v1",
+    "contentVersion": "cart-content-v1",
+    "seed": 1729,
+    "nodes": [
+      {
+        "id": "customers-us-west",
+        "kind": "customers",
+        "region": "us-west",
+        "position": {
+          "x": 120,
+          "y": 40
+        }
+      },
+      {
+        "id": "customers-eu-central",
+        "kind": "customers",
+        "region": "eu-central",
+        "position": {
+          "x": 520,
+          "y": 40
+        }
+      },
+      {
+        "id": "customers-ap-northeast",
+        "kind": "customers",
+        "region": "ap-northeast",
+        "position": {
+          "x": 920,
+          "y": 40
+        }
+      },
+      {
+        "id": "inventory",
+        "kind": "inventory",
+        "region": "us-west",
+        "position": {
+          "x": 240,
+          "y": 440
+        },
+        "size": "M"
+      },
+      {
+        "id": "app-us-west",
+        "kind": "application",
+        "region": "us-west",
+        "position": {
+          "x": 160,
+          "y": 200
+        },
+        "size": "M",
+        "instances": 2,
+        "writeTarget": "store-us-west",
+        "readPolicy": "parallel",
+        "readTargets": [
+          "store-us-west"
+        ]
+      },
+      {
+        "id": "app-eu-central",
+        "kind": "application",
+        "region": "eu-central",
+        "position": {
+          "x": 560,
+          "y": 200
+        },
+        "size": "M",
+        "instances": 2,
+        "writeTarget": "store-eu-central",
+        "readPolicy": "parallel",
+        "readTargets": [
+          "store-eu-central"
+        ]
+      },
+      {
+        "id": "app-ap-northeast",
+        "kind": "application",
+        "region": "ap-northeast",
+        "position": {
+          "x": 960,
+          "y": 200
+        },
+        "size": "M",
+        "instances": 2,
+        "writeTarget": "store-ap-northeast",
+        "readPolicy": "parallel",
+        "readTargets": [
+          "store-ap-northeast"
+        ]
+      },
+      {
+        "id": "store-us-west",
+        "kind": "store",
+        "region": "us-west",
+        "position": {
+          "x": 200,
+          "y": 320
+        },
+        "size": "M"
+      },
+      {
+        "id": "store-eu-central",
+        "kind": "store",
+        "region": "eu-central",
+        "position": {
+          "x": 600,
+          "y": 320
+        },
+        "size": "M"
+      },
+      {
+        "id": "store-ap-northeast",
+        "kind": "store",
+        "region": "ap-northeast",
+        "position": {
+          "x": 1000,
+          "y": 320
+        },
+        "size": "M"
+      }
+    ],
+    "edges": [
+      {
+        "id": "src-us-west",
+        "from": "customers-us-west",
+        "to": "app-us-west",
+        "kind": "request"
+      },
+      {
+        "id": "src-eu-central",
+        "from": "customers-eu-central",
+        "to": "app-eu-central",
+        "kind": "request"
+      },
+      {
+        "id": "src-ap-northeast",
+        "from": "customers-ap-northeast",
+        "to": "app-ap-northeast",
+        "kind": "request"
+      },
+      {
+        "id": "ack-us-west",
+        "from": "app-us-west",
+        "to": "store-us-west",
+        "kind": "request"
+      },
+      {
+        "id": "ack-eu-central",
+        "from": "app-eu-central",
+        "to": "store-eu-central",
+        "kind": "request"
+      },
+      {
+        "id": "ack-ap-northeast",
+        "from": "app-ap-northeast",
+        "to": "store-ap-northeast",
+        "kind": "request"
+      },
+      {
+        "id": "replicate-us-west-eu-central",
+        "from": "store-us-west",
+        "to": "store-eu-central",
+        "kind": "replication"
+      },
+      {
+        "id": "replicate-eu-central-us-west",
+        "from": "store-eu-central",
+        "to": "store-us-west",
+        "kind": "replication"
+      },
+      {
+        "id": "replicate-us-west-ap-northeast",
+        "from": "store-us-west",
+        "to": "store-ap-northeast",
+        "kind": "replication"
+      },
+      {
+        "id": "replicate-ap-northeast-us-west",
+        "from": "store-ap-northeast",
+        "to": "store-us-west",
+        "kind": "replication"
+      },
+      {
+        "id": "replicate-eu-central-ap-northeast",
+        "from": "store-eu-central",
+        "to": "store-ap-northeast",
+        "kind": "replication"
+      },
+      {
+        "id": "replicate-ap-northeast-eu-central",
+        "from": "store-ap-northeast",
+        "to": "store-eu-central",
+        "kind": "replication"
+      },
+      {
+        "id": "inventory-us-west",
+        "from": "app-us-west",
+        "to": "inventory",
+        "kind": "request"
+      },
+      {
+        "id": "inventory-eu-central",
+        "from": "app-eu-central",
+        "to": "inventory",
+        "kind": "request"
+      },
+      {
+        "id": "inventory-ap-northeast",
+        "from": "app-ap-northeast",
+        "to": "inventory",
+        "kind": "request"
+      }
+    ],
+    "circuits": [
+      {
+        "regions": [
+          "us-west",
+          "eu-central"
+        ],
+        "mbps": 8
+      },
+      {
+        "regions": [
+          "us-west",
+          "ap-northeast"
+        ],
+        "mbps": 8
+      },
+      {
+        "regions": [
+          "eu-central",
+          "ap-northeast"
+        ],
+        "mbps": 8
+      }
+    ]
+  }
+}

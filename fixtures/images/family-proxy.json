@@ -1,0 +1,352 @@
+{
+  "schemaVersion": 1,
+  "levelId": "image-atlas",
+  "modelVersion": "1.0.0",
+  "name": "Proxy without cache, SQL indexed metadata, full mesh (family D)",
+  "nodes": [
+    {
+      "id": "client-na",
+      "kind": "client",
+      "label": "North America clients",
+      "position": {
+        "x": -900,
+        "y": -240
+      },
+      "region": "na",
+      "config": {
+        "clientRttMs": 20,
+        "fullDuplex": true,
+        "aggregateBandwidthGbitPerSec": 100,
+        "requestAccessBandwidthGbitPerSec": 1
+      }
+    },
+    {
+      "id": "blob-na",
+      "kind": "blob",
+      "label": "Global blob · NA endpoint",
+      "position": {
+        "x": 900,
+        "y": -240
+      },
+      "region": "na",
+      "config": {
+        "providerId": "global-blob",
+        "endpointBandwidthGbitPerSec": 100,
+        "readRpcPerSec": 10000,
+        "writeRpcPerSec": 2000,
+        "remoteReadVisibilityMs": 60000,
+        "originReadYourWrites": true,
+        "durableAck": "global",
+        "thumbnailVariantReads": true,
+        "materializedThumbnails": false
+      }
+    },
+    {
+      "id": "app-na",
+      "kind": "app",
+      "label": "North America app pool",
+      "position": {
+        "x": -200,
+        "y": -240
+      },
+      "region": "na",
+      "config": {
+        "instances": 6,
+        "delivery": "proxy",
+        "buffering": "streaming",
+        "retries": 1,
+        "retryBackoffMs": 50
+      }
+    },
+    {
+      "id": "metadata-na",
+      "kind": "metadata",
+      "label": "North America metadata store",
+      "position": {
+        "x": 330,
+        "y": -240
+      },
+      "region": "na",
+      "config": {
+        "backend": "sql",
+        "index": "user-tag",
+        "diskTb": 8,
+        "instances": 6,
+        "replicas": 3,
+        "residentCacheGb": 8
+      }
+    },
+    {
+      "id": "client-eu",
+      "kind": "client",
+      "label": "Europe clients",
+      "position": {
+        "x": -900,
+        "y": 0
+      },
+      "region": "eu",
+      "config": {
+        "clientRttMs": 20,
+        "fullDuplex": true,
+        "aggregateBandwidthGbitPerSec": 100,
+        "requestAccessBandwidthGbitPerSec": 1
+      }
+    },
+    {
+      "id": "blob-eu",
+      "kind": "blob",
+      "label": "Global blob · EU endpoint",
+      "position": {
+        "x": 900,
+        "y": 0
+      },
+      "region": "eu",
+      "config": {
+        "providerId": "global-blob",
+        "endpointBandwidthGbitPerSec": 100,
+        "readRpcPerSec": 10000,
+        "writeRpcPerSec": 2000,
+        "remoteReadVisibilityMs": 60000,
+        "originReadYourWrites": true,
+        "durableAck": "global",
+        "thumbnailVariantReads": true,
+        "materializedThumbnails": false
+      }
+    },
+    {
+      "id": "app-eu",
+      "kind": "app",
+      "label": "Europe app pool",
+      "position": {
+        "x": -200,
+        "y": 0
+      },
+      "region": "eu",
+      "config": {
+        "instances": 6,
+        "delivery": "proxy",
+        "buffering": "streaming",
+        "retries": 1,
+        "retryBackoffMs": 50
+      }
+    },
+    {
+      "id": "metadata-eu",
+      "kind": "metadata",
+      "label": "Europe metadata store",
+      "position": {
+        "x": 330,
+        "y": 0
+      },
+      "region": "eu",
+      "config": {
+        "backend": "sql",
+        "index": "user-tag",
+        "diskTb": 8,
+        "instances": 6,
+        "replicas": 3,
+        "residentCacheGb": 8
+      }
+    },
+    {
+      "id": "client-ap",
+      "kind": "client",
+      "label": "Asia Pacific clients",
+      "position": {
+        "x": -900,
+        "y": 240
+      },
+      "region": "ap",
+      "config": {
+        "clientRttMs": 20,
+        "fullDuplex": true,
+        "aggregateBandwidthGbitPerSec": 100,
+        "requestAccessBandwidthGbitPerSec": 1
+      }
+    },
+    {
+      "id": "blob-ap",
+      "kind": "blob",
+      "label": "Global blob · AP endpoint",
+      "position": {
+        "x": 900,
+        "y": 240
+      },
+      "region": "ap",
+      "config": {
+        "providerId": "global-blob",
+        "endpointBandwidthGbitPerSec": 100,
+        "readRpcPerSec": 10000,
+        "writeRpcPerSec": 2000,
+        "remoteReadVisibilityMs": 60000,
+        "originReadYourWrites": true,
+        "durableAck": "global",
+        "thumbnailVariantReads": true,
+        "materializedThumbnails": false
+      }
+    },
+    {
+      "id": "app-ap",
+      "kind": "app",
+      "label": "Asia Pacific app pool",
+      "position": {
+        "x": -200,
+        "y": 240
+      },
+      "region": "ap",
+      "config": {
+        "instances": 6,
+        "delivery": "proxy",
+        "buffering": "streaming",
+        "retries": 1,
+        "retryBackoffMs": 50
+      }
+    },
+    {
+      "id": "metadata-ap",
+      "kind": "metadata",
+      "label": "Asia Pacific metadata store",
+      "position": {
+        "x": 330,
+        "y": 240
+      },
+      "region": "ap",
+      "config": {
+        "backend": "sql",
+        "index": "user-tag",
+        "diskTb": 8,
+        "instances": 6,
+        "replicas": 3,
+        "residentCacheGb": 8
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "metadata-na",
+      "source": "app-na",
+      "target": "metadata-na",
+      "operation": "metadata"
+    },
+    {
+      "id": "app-provider-na",
+      "source": "app-na",
+      "target": "blob-na",
+      "operation": "blob"
+    },
+    {
+      "id": "metadata-eu",
+      "source": "app-eu",
+      "target": "metadata-eu",
+      "operation": "metadata"
+    },
+    {
+      "id": "app-provider-eu",
+      "source": "app-eu",
+      "target": "blob-eu",
+      "operation": "blob"
+    },
+    {
+      "id": "metadata-ap",
+      "source": "app-ap",
+      "target": "metadata-ap",
+      "operation": "metadata"
+    },
+    {
+      "id": "app-provider-ap",
+      "source": "app-ap",
+      "target": "blob-ap",
+      "operation": "blob"
+    },
+    {
+      "id": "traffic-na-na",
+      "source": "client-na",
+      "target": "app-na",
+      "operation": "traffic"
+    },
+    {
+      "id": "traffic-na-eu",
+      "source": "client-na",
+      "target": "app-eu",
+      "operation": "traffic"
+    },
+    {
+      "id": "traffic-na-ap",
+      "source": "client-na",
+      "target": "app-ap",
+      "operation": "traffic"
+    },
+    {
+      "id": "traffic-eu-na",
+      "source": "client-eu",
+      "target": "app-na",
+      "operation": "traffic"
+    },
+    {
+      "id": "traffic-eu-eu",
+      "source": "client-eu",
+      "target": "app-eu",
+      "operation": "traffic"
+    },
+    {
+      "id": "traffic-eu-ap",
+      "source": "client-eu",
+      "target": "app-ap",
+      "operation": "traffic"
+    },
+    {
+      "id": "traffic-ap-na",
+      "source": "client-ap",
+      "target": "app-na",
+      "operation": "traffic"
+    },
+    {
+      "id": "traffic-ap-eu",
+      "source": "client-ap",
+      "target": "app-eu",
+      "operation": "traffic"
+    },
+    {
+      "id": "traffic-ap-ap",
+      "source": "client-ap",
+      "target": "app-ap",
+      "operation": "traffic"
+    },
+    {
+      "id": "replicate-na-eu",
+      "source": "metadata-na",
+      "target": "metadata-eu",
+      "operation": "replicate"
+    },
+    {
+      "id": "replicate-na-ap",
+      "source": "metadata-na",
+      "target": "metadata-ap",
+      "operation": "replicate"
+    },
+    {
+      "id": "replicate-eu-na",
+      "source": "metadata-eu",
+      "target": "metadata-na",
+      "operation": "replicate"
+    },
+    {
+      "id": "replicate-eu-ap",
+      "source": "metadata-eu",
+      "target": "metadata-ap",
+      "operation": "replicate"
+    },
+    {
+      "id": "replicate-ap-na",
+      "source": "metadata-ap",
+      "target": "metadata-na",
+      "operation": "replicate"
+    },
+    {
+      "id": "replicate-ap-eu",
+      "source": "metadata-ap",
+      "target": "metadata-eu",
+      "operation": "replicate"
+    }
+  ]
+}

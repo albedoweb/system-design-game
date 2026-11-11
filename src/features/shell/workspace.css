@@ -1,0 +1,307 @@
+.workspace.game-workspace {
+  position: relative;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 322px;
+  flex: 1;
+  gap: 10px;
+  min-height: 0;
+  padding: 10px 14px 12px;
+}
+
+/*
+ * Pointer resizing writes only this variable until release. A CSS-driven
+ * height avoids a React workspace render per pointer event while React Flow's
+ * ResizeObserver is already handling the same layout change.
+ */
+.workspace .game-split.is-telemetry-dragging .metrics {
+  display: flex;
+  flex-direction: column;
+  height: var(--telemetry-drag-height, 96px) !important;
+  min-height: 0;
+}
+
+.workspace .game-split.is-telemetry-dragging .metrics__body {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+}
+
+.canvas-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-zoom {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.canvas-zoom button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 30px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.canvas-zoom button:last-child {
+  border-bottom: 0;
+}
+
+.canvas-zoom button:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.canvas-lock {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 6;
+  padding: 5px 9px;
+  border: 1px solid #eed5a2;
+  border-radius: 999px;
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 0.72rem;
+  font-weight: 650;
+  box-shadow: var(--shadow-sm);
+}
+
+.canvas-stale {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 6;
+  max-width: min(380px, calc(100% - 20px));
+  padding: 6px 9px;
+  border: 1px solid #eed5a2;
+  border-radius: 9px;
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 0.7rem;
+  line-height: 1.4;
+  box-shadow: var(--shadow-sm);
+}
+
+.telemetry-resizer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  height: 12px;
+  border-radius: 999px;
+  cursor: row-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+.telemetry-resizer__grip {
+  width: 48px;
+  height: 4px;
+  border-radius: 999px;
+  background: #c3d1df;
+  transition: background 120ms ease, width 120ms ease;
+}
+
+.telemetry-resizer:hover .telemetry-resizer__grip,
+.telemetry-resizer:focus-visible .telemetry-resizer__grip {
+  width: 64px;
+  background: var(--accent);
+}
+
+.canvas-alert {
+  position: absolute;
+  right: 10px;
+  bottom: 112px;
+  left: 10px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  max-width: 520px;
+  margin-left: auto;
+  padding: 8px 10px;
+  border: 1px solid #efc4bf;
+  border-radius: 9px;
+  background: #fff8f7;
+  color: var(--danger);
+  font-size: 0.78rem;
+  box-shadow: var(--shadow);
+}
+
+.canvas-alert button {
+  flex: none;
+  padding: 3px 8px;
+  border: 1px solid #e6b5af;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 0.74rem;
+}
+
+.connection-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.connection-form__grid > .ui-field:first-child {
+  grid-column: 1 / -1;
+}
+
+.connection-form__intro {
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.connection-form__error {
+  margin-top: 10px;
+  padding: 7px 9px;
+  border: 1px solid #efc4bf;
+  border-radius: 7px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 0.8rem;
+}
+
+.connection-form__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.connection-list {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.connection-list h3 {
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+}
+
+.connection-list ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.connection-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+  font-size: 0.78rem;
+}
+
+.connection-list p {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 1320px) {
+  .workspace.game-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace .game-side-panel {
+    position: absolute;
+    z-index: 30;
+    top: 0;
+    bottom: 0;
+    display: none;
+    width: min(348px, 88vw);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    box-shadow: 0 24px 60px -28px rgb(15 27 40 / 55%);
+  }
+
+  .workspace .game-side-panel.is-open {
+    display: flex;
+  }
+
+  .workspace .game-side-panel--left {
+    left: 0;
+  }
+
+  .workspace .game-side-panel--right {
+    right: 0;
+    width: min(360px, 90vw);
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  }
+
+  .workspace .game-side-tabs__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    min-height: 28px;
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .workspace .game-side-panel__close {
+    position: absolute;
+    z-index: 2;
+    top: 8px;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .workspace .game-toolbar__panel-toggle {
+    display: inline-flex;
+  }
+}
+
+@media (max-height: 720px) {
+  .workspace.game-workspace {
+    padding-top: 6px;
+    padding-bottom: 8px;
+  }
+
+  .workspace .game-canvas-area {
+    min-height: 180px;
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "contract": "cart-protocol-v1",
+  "fixtureVersion": 1,
+  "purpose": "Tester-selected holdout seeds frozen by GC-004 before any calibration run or candidate tuning exists.",
+  "frozenAtUTC": "2026-11-09T03:50:48Z",
+  "frozenAgainstRevision": "25dbbf544af33923f357ba2b5caf70743e58ce28",
+  "freezeEvidence": {
+    "worktree": "isolated worktree for task GC-004",
+    "branch": "global-cart/hermes/gc-004",
+    "preparationRecord": "GC-004 preparation record, kept outside this repository",
+    "calibrationArtifactsPresent": false,
+    "calibrationReportPresent": false,
+    "note": "No calibration run, candidate graph result or tuning report existed when these seeds were recorded. Only specification inputs were read."
+  },
+  "derivation": {
+    "rule": "SHA-256('global-cart-v1/holdout/<index>'), take the first four bytes big-endian as uint32",
+    "indexes": [1, 2, 3, 4, 5, 6],
+    "constraints": [
+      "value must be a non-zero uint32",
+      "value must not duplicate a named training or public-adversarial seed",
+      "value must not duplicate an earlier holdout"
+    ],
+    "reproduce": "for index in 1..6 compute the digest and read uint32 BE at offset 0; skip and continue only on a constraint collision"
+  },
+  "excludedFromTuning": true,
+  "policy": [
+    "These seeds are not training seeds and must not be used by any calibration, tuning or candidate-selection run.",
+    "They may be used only by independent verification cards (GC-019/GC-020 and later) after candidate code is frozen.",
+    "Changing a seed requires a new holdout fixture revision recorded before the next candidate freeze.",
+    "A passing result on training seeds does not consume or reveal these holdouts."
+  ],
+  "existingNamedSeeds": {
+    "default": 1729,
+    "training": [1, 7, 42, 1729, 20261108],
+    "publicAdversarial": [73, 991, 65537]
+  },
+  "holdoutSeeds": [341833678, 178115544, 1778397042, 1167745332, 2614689868, 1702811076]
+}

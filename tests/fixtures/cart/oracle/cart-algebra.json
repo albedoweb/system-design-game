@@ -1,0 +1,416 @@
+{
+  "contract": "cart-protocol-v1",
+  "fixtureVersion": 1,
+  "purpose": "Hand-auditable cart operation histories. Every expected effect and live set is a literal written by hand from the observed-unit algebra; reference-oracle.ts derives the same values without any production import.",
+  "unitSort": "(region ordinal us-west<eu-central<ap-northeast, clientId, numeric requestSequence, unitIndex)",
+  "histories": [
+    {
+      "id": "concurrent-add",
+      "cartId": "cart-concurrent-add",
+      "sku": "sku-1",
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 1000
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        },
+        {
+          "id": "op-c",
+          "key": { "originRegion": "us-west", "clientId": "c3", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        }
+      ],
+      "expectedEffects": {
+        "op-a": { "adds": ["us-west/c1/1#0", "us-west/c1/1#1"], "tombstones": [] },
+        "op-b": { "adds": ["us-west/c2/1#0"], "tombstones": [] },
+        "op-c": { "adds": ["us-west/c3/1#0"], "tombstones": [] }
+      },
+      "deliveryOrders": [
+        ["op-a", "op-b", "op-c"],
+        ["op-c", "op-b", "op-a"]
+      ],
+      "expectations": [
+        {
+          "live": ["us-west/c1/1#0", "us-west/c1/1#1", "us-west/c2/1#0", "us-west/c3/1#0"],
+          "quantity": 4
+        },
+        {
+          "live": ["us-west/c1/1#0", "us-west/c1/1#1", "us-west/c2/1#0", "us-west/c3/1#0"],
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "id": "change-2-to-3",
+      "cartId": "cart-change-2-to-3",
+      "sku": "sku-1",
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 1000
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "change",
+          "quantity": 3,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        },
+        {
+          "id": "op-c",
+          "key": { "originRegion": "eu-central", "clientId": "c3", "requestSequence": 1 },
+          "kind": "change",
+          "quantity": 3,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        }
+      ],
+      "expectedEffects": {
+        "op-a": { "adds": ["us-west/c1/1#0", "us-west/c1/1#1"], "tombstones": [] },
+        "op-b": { "adds": ["us-west/c2/1#0"], "tombstones": [] },
+        "op-c": { "adds": ["eu-central/c3/1#0"], "tombstones": [] }
+      },
+      "deliveryOrders": [
+        ["op-a", "op-b", "op-c"],
+        ["op-c", "op-b", "op-a"]
+      ],
+      "expectations": [
+        {
+          "live": ["us-west/c1/1#0", "us-west/c1/1#1", "us-west/c2/1#0", "eu-central/c3/1#0"],
+          "quantity": 4
+        },
+        {
+          "live": ["us-west/c1/1#0", "us-west/c1/1#1", "us-west/c2/1#0", "eu-central/c3/1#0"],
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "id": "change-2-to-1",
+      "cartId": "cart-change-2-to-1",
+      "sku": "sku-1",
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 1000
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "change",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        },
+        {
+          "id": "op-c",
+          "key": { "originRegion": "eu-central", "clientId": "c3", "requestSequence": 1 },
+          "kind": "change",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        }
+      ],
+      "expectedEffects": {
+        "op-a": { "adds": ["us-west/c1/1#0", "us-west/c1/1#1"], "tombstones": [] },
+        "op-b": { "adds": [], "tombstones": ["us-west/c1/1#0"] },
+        "op-c": { "adds": [], "tombstones": ["us-west/c1/1#0"] }
+      },
+      "deliveryOrders": [
+        ["op-a", "op-b", "op-c"],
+        ["op-c", "op-b", "op-a"]
+      ],
+      "expectations": [
+        { "live": ["us-west/c1/1#1"], "quantity": 1 },
+        { "live": ["us-west/c1/1#1"], "quantity": 1 }
+      ]
+    },
+    {
+      "id": "remove-versus-add",
+      "cartId": "cart-remove-versus-add",
+      "sku": "sku-1",
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 1000
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "remove",
+          "quantity": null,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        },
+        {
+          "id": "op-c",
+          "key": { "originRegion": "eu-central", "clientId": "c3", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        }
+      ],
+      "expectedEffects": {
+        "op-a": { "adds": ["us-west/c1/1#0", "us-west/c1/1#1"], "tombstones": [] },
+        "op-b": { "adds": [], "tombstones": ["us-west/c1/1#0", "us-west/c1/1#1"] },
+        "op-c": { "adds": ["eu-central/c3/1#0"], "tombstones": [] }
+      },
+      "deliveryOrders": [
+        ["op-a", "op-b", "op-c"],
+        ["op-b", "op-a", "op-c"],
+        ["op-c", "op-b", "op-a"]
+      ],
+      "expectations": [
+        { "live": ["eu-central/c3/1#0"], "quantity": 1 },
+        { "live": ["eu-central/c3/1#0"], "quantity": 1 },
+        { "live": ["eu-central/c3/1#0"], "quantity": 1 }
+      ],
+      "note": "The remove only tombstones units in its observed context; the concurrent unseen add survives."
+    },
+    {
+      "id": "removed-old-add-replay",
+      "cartId": "cart-removed-old-add-replay",
+      "sku": "sku-1",
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 1000
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "remove",
+          "quantity": null,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        },
+        {
+          "id": "op-a-retry",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 3000
+        }
+      ],
+      "expectedEffects": {
+        "op-a": { "adds": ["us-west/c1/1#0", "us-west/c1/1#1"], "tombstones": [] },
+        "op-b": { "adds": [], "tombstones": ["us-west/c1/1#0", "us-west/c1/1#1"] },
+        "op-a-retry": { "adds": ["us-west/c1/1#0", "us-west/c1/1#1"], "tombstones": [] }
+      },
+      "deliveryOrders": [
+        ["op-a", "op-b", "op-a-retry"],
+        ["op-a-retry", "op-b", "op-a"]
+      ],
+      "expectations": [
+        { "live": [], "quantity": 0, "duplicates": ["op-a-retry"] },
+        { "live": [], "quantity": 0, "duplicates": ["op-a"] }
+      ],
+      "note": "Identical key and payload is one effect; replaying the removed old add cannot resurrect units."
+    },
+    {
+      "id": "causal-readd",
+      "cartId": "cart-causal-readd",
+      "sku": "sku-1",
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 1000
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "remove",
+          "quantity": null,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        },
+        {
+          "id": "op-c",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 2 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-b"],
+          "commitAtUs": 3000
+        }
+      ],
+      "expectedEffects": {
+        "op-a": { "adds": ["us-west/c1/1#0", "us-west/c1/1#1"], "tombstones": [] },
+        "op-b": { "adds": [], "tombstones": ["us-west/c1/1#0", "us-west/c1/1#1"] },
+        "op-c": { "adds": ["us-west/c2/2#0"], "tombstones": [] }
+      },
+      "deliveryOrders": [
+        ["op-a", "op-b", "op-c"],
+        ["op-b", "op-a", "op-c"],
+        ["op-c", "op-b", "op-a"]
+      ],
+      "expectations": [
+        { "live": ["us-west/c2/2#0"], "quantity": 1 },
+        { "live": ["us-west/c2/2#0"], "quantity": 1 },
+        { "live": ["us-west/c2/2#0"], "quantity": 1 }
+      ],
+      "note": "A new add whose context includes the removal is a legitimate fresh unit."
+    },
+    {
+      "id": "identical-edit-retry",
+      "cartId": "cart-identical-edit-retry",
+      "sku": "sku-1",
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 1000
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        }
+      ],
+      "expectedEffects": {
+        "op-a": { "adds": ["us-west/c1/1#0", "us-west/c1/1#1"], "tombstones": [] },
+        "op-b": { "adds": ["us-west/c2/1#0"], "tombstones": [] }
+      },
+      "deliveryOrders": [
+        ["op-a", "op-b", "op-b"],
+        ["op-b", "op-a", "op-b"]
+      ],
+      "expectations": [
+        { "live": ["us-west/c1/1#0", "us-west/c1/1#1", "us-west/c2/1#0"], "quantity": 3, "duplicates": ["op-b"] },
+        { "live": ["us-west/c1/1#0", "us-west/c1/1#1", "us-west/c2/1#0"], "quantity": 3, "duplicates": ["op-b"] }
+      ]
+    },
+    {
+      "id": "conflicting-id",
+      "cartId": "cart-conflicting-id",
+      "sku": "sku-1",
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 1000
+        },
+        {
+          "id": "op-b",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 1,
+          "observedContext": ["op-a"],
+          "commitAtUs": 2000
+        },
+        {
+          "id": "op-b-conflict",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": ["op-a"],
+          "commitAtUs": 3000
+        }
+      ],
+      "expectedEffects": {
+        "op-a": { "adds": ["us-west/c1/1#0", "us-west/c1/1#1"], "tombstones": [] },
+        "op-b": { "adds": ["us-west/c2/1#0"], "tombstones": [] },
+        "op-b-conflict": { "adds": ["us-west/c2/1#0", "us-west/c2/1#1"], "tombstones": [] }
+      },
+      "deliveryOrders": [
+        ["op-a", "op-b", "op-b-conflict"],
+        ["op-a", "op-b-conflict", "op-b"]
+      ],
+      "expectations": [
+        {
+          "live": ["us-west/c1/1#0", "us-west/c1/1#1", "us-west/c2/1#0"],
+          "quantity": 3,
+          "conflicts": ["op-b-conflict"]
+        },
+        {
+          "live": ["us-west/c1/1#0", "us-west/c1/1#1", "us-west/c2/1#0", "us-west/c2/1#1"],
+          "quantity": 4,
+          "conflicts": ["op-b"]
+        }
+      ],
+      "note": "The first bound payload wins; the conflicting reuse is rejected without mutation and without an IdempotencyConflict state change."
+    },
+    {
+      "id": "missing-causal-dependency",
+      "cartId": "cart-missing-causal-dependency",
+      "sku": "sku-1",
+      "operations": [
+        {
+          "id": "op-a",
+          "key": { "originRegion": "us-west", "clientId": "c1", "requestSequence": 1 },
+          "kind": "add",
+          "quantity": 2,
+          "observedContext": [],
+          "commitAtUs": 1000
+        },
+        {
+          "id": "op-orphan",
+          "key": { "originRegion": "us-west", "clientId": "c2", "requestSequence": 1 },
+          "kind": "change",
+          "quantity": 3,
+          "observedContext": ["op-missing"],
+          "commitAtUs": 2000
+        }
+      ],
+      "expectedEffects": {
+        "op-a": { "adds": ["us-west/c1/1#0", "us-west/c1/1#1"], "tombstones": [] },
+        "op-orphan": { "adds": [], "tombstones": [], "status": "missing-dependency" }
+      },
+      "deliveryOrders": [["op-a", "op-orphan"]],
+      "expectations": [
+        {
+          "live": ["us-west/c1/1#0", "us-west/c1/1#1"],
+          "quantity": 2,
+          "buffered": ["op-orphan"],
+          "missingDependencies": { "op-orphan": ["op-missing"] }
+        }
+      ],
+      "note": "An operation with an unavailable dependency is durably buffered and never exposes an incomplete view."
+    }
+  ]
+}

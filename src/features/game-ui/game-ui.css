@@ -1,0 +1,438 @@
+/* Shared game UI -------------------------------------------------------------
+   Presentation for the pieces every level must show the same way: workspace
+   layout, task/inspector panels, graph toolbar, telemetry panel and report
+   tables. Levels keep their own grid widths and narrow-screen breakpoints so
+   the existing three levels keep their current behaviour. */
+
+/* Workspace ---------------------------------------------------------------- */
+
+.game-workspace {
+  position: relative;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 344px;
+  flex: 1;
+  gap: 10px;
+  min-height: 0;
+  padding: 10px 14px 12px;
+}
+
+.game-workspace--collapsible {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.game-workspace--collapsible .game-workspace__main {
+  grid-column: 2;
+}
+
+.game-workspace--collapsible .game-side-panel--left {
+  grid-column: 1;
+}
+
+.game-workspace--collapsible .game-side-panel--right {
+  grid-column: 3;
+}
+
+.game-side-panel {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* An open drawer must stay above the compact backdrop so tabs, close control
+   and content remain interactive. */
+.game-side-panel.is-open {
+  z-index: 25;
+}
+
+.game-workspace--collapsible .game-side-panel {
+  display: none;
+  width: 292px;
+}
+
+.game-workspace--collapsible .game-side-panel--right {
+  width: 336px;
+}
+
+.game-workspace--collapsible .game-side-panel.is-open {
+  display: flex;
+}
+
+.game-side-tabs {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 2px;
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
+.game-side-tabs__list {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 2px;
+}
+
+.game-side-tabs button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.game-side-tabs button:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.game-side-tabs button.is-active {
+  background: var(--surface);
+  color: var(--accent-strong);
+  box-shadow: 0 1px 4px rgb(20 33 47 / 10%);
+}
+
+.game-side-tabs__close,
+.game-side-panel__close {
+  display: none;
+}
+
+.game-side-scroll {
+  flex: 1;
+  min-height: 0;
+  padding: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.game-workspace__main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.game-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.game-toolbar__group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.game-toolbar .game-toolbar__panel-toggle {
+  display: none;
+}
+
+.game-toolbar--toggles-always .game-toolbar__panel-toggle {
+  display: inline-flex;
+}
+
+.game-split {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.game-canvas-area {
+  flex: 1;
+  min-height: 180px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: #f8fafc;
+  box-shadow: var(--shadow-sm);
+}
+
+.game-workspace__backdrop {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  border: 0;
+  background: rgb(15 27 40 / 28%);
+  cursor: pointer;
+}
+/* Telemetry / report panel ------------------------------------------------- */
+
+.game-telemetry {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  min-height: 96px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.game-telemetry:not(.is-open) {
+  min-height: 0;
+}
+
+.game-telemetry__toggle {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 10px;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 0;
+  background: var(--surface-soft);
+  color: var(--ink-soft);
+  cursor: pointer;
+  text-align: left;
+}
+
+.game-telemetry__toggle-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.game-telemetry__summary {
+  overflow: hidden;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-telemetry__toggle > svg {
+  flex: none;
+  color: var(--muted);
+  transition: transform 140ms ease;
+}
+
+.game-telemetry__toggle > svg.is-rotated {
+  transform: rotate(180deg);
+}
+
+.game-telemetry__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  min-height: 0;
+  padding: 10px 12px 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.game-telemetry__body > * {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.game-telemetry.has-custom-height .game-telemetry__body {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+}
+
+/* Reports ------------------------------------------------------------------ */
+
+.game-report-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.game-report-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.game-report-section__title {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.game-report-section__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.game-report-section__note {
+  color: var(--muted);
+  font-size: 0.69rem;
+  line-height: 1.45;
+}
+
+.game-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.game-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.game-table caption {
+  padding: 7px 9px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.game-table th,
+.game-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #e9eff5;
+  text-align: left;
+  vertical-align: top;
+}
+
+.game-table--dense th,
+.game-table--dense td {
+  padding: 5px 8px;
+}
+
+.game-table tbody tr:last-child th,
+.game-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.game-table thead th {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.game-table tbody th {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.game-table__sub {
+  display: block;
+  margin-top: 1px;
+  color: var(--faint);
+  font-size: 0.62rem;
+  font-weight: 400;
+  white-space: normal;
+}
+
+.game-table .is-pass {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.game-table .is-fail {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.game-table .is-warn {
+  color: var(--warning);
+  font-weight: 700;
+}
+
+.game-table__extra > td {
+  padding: 0;
+  border-bottom: 1px solid #e2ebf3;
+}
+
+.game-focus {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Charts ------------------------------------------------------------------- */
+
+.game-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.game-chart__operations {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 650;
+}
+
+.game-chart__operations select {
+  min-height: 24px;
+  padding: 1px 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font: inherit;
+}
+
+.game-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+@media (max-width: 720px) {
+  .game-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-telemetry__toggle > svg {
+    transition: none;
+  }
+}

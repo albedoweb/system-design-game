@@ -1,0 +1,387 @@
+.react-flow {
+  --xy-background-color: #f8fafc;
+}
+
+.react-flow__node-domain {
+  width: 204px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+}
+
+.domain-node {
+  position: relative;
+  width: 204px;
+  min-height: 118px;
+  padding: 11px 12px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 8px 20px -16px rgb(20 33 47 / 45%);
+  cursor: grab;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.domain-node:active {
+  cursor: grabbing;
+}
+
+.domain-node.is-selected {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 2px rgb(14 116 144 / 16%),
+    0 10px 24px -16px rgb(20 33 47 / 50%);
+}
+
+.domain-node.is-peak {
+  background: #fcfdfe;
+}
+
+.domain-node.is-stopped {
+  border-style: dashed;
+  background: #fbfcfd;
+}
+
+.domain-node--diagnostic-warning {
+  border-color: #dca63b;
+  background: #fffdf6;
+  box-shadow:
+    0 0 0 2px rgb(220 166 59 / 20%),
+    0 8px 20px -16px rgb(20 33 47 / 45%);
+}
+
+.domain-node--diagnostic-error {
+  border-color: #d9564a;
+  background: #fff8f7;
+  box-shadow:
+    0 0 0 2px rgb(180 35 24 / 22%),
+    0 8px 20px -16px rgb(20 33 47 / 45%);
+}
+
+.domain-node__head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.domain-node__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--surface-muted);
+  color: var(--accent-strong);
+}
+
+.domain-node--cache .domain-node__icon {
+  background: #edf7f4;
+  color: var(--success);
+}
+
+.domain-node--database .domain-node__icon {
+  background: #eef1ff;
+  color: var(--blue);
+}
+
+.domain-node--loadBalancer .domain-node__icon {
+  background: #f4eefe;
+  color: var(--write);
+}
+
+.domain-node__title {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.domain-node__capacity {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  white-space: nowrap;
+}
+
+.domain-node__badge {
+  flex: none;
+  margin-left: auto;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.56rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.domain-node__badge--warning {
+  border: 1px solid #edd39a;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.domain-node__badge--error {
+  border: 1px solid #efc4bf;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.domain-node__loads {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid #edf2f6;
+}
+
+.domain-node__peak {
+  color: var(--faint);
+  font-size: 0.56rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.domain-node__snapshot {
+  color: var(--warning);
+  font-size: 0.56rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.domain-node__load-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.domain-node__load-label {
+  flex: none;
+  width: 30px;
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-weight: 650;
+}
+
+.domain-node__load-value {
+  margin-left: auto;
+  color: var(--ink-soft);
+  font-size: 0.6rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.domain-node__load-note {
+  display: block;
+  margin-left: 36px;
+  color: var(--faint);
+  font-size: 0.56rem;
+  line-height: 1.3;
+}
+
+.load-blocks {
+  display: grid;
+  flex: none;
+  grid-template-columns: repeat(10, 8px);
+  gap: 2px;
+}
+
+.load-blocks span {
+  width: 8px;
+  height: 8px;
+  border: 1px solid #cfdae4;
+  border-radius: 2px;
+  background: #fff;
+}
+
+.load-blocks span.is-filled {
+  border-color: #94a3b8;
+  background: #e2e8f0;
+}
+
+.load-blocks--green span.is-filled {
+  border-color: #15803d;
+  background: #15803d;
+}
+
+.load-blocks--yellow span.is-filled {
+  border-color: #b78612;
+  background: #d9a514;
+}
+
+.load-blocks--orange span.is-filled {
+  border-color: #c2410c;
+  background: #ea580c;
+}
+
+.load-blocks--red span.is-filled {
+  border-color: #b91c1c;
+  background: #dc2626;
+}
+
+.load-blocks--dark-red span.is-filled {
+  border-color: #6f1717;
+  background: #7f1d1d;
+}
+
+.load-blocks--unknown span {
+  border-color: #d8e2ec;
+  background: #f1f5f9;
+}
+
+.domain-node__diagnostic {
+  margin-top: 7px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  font-size: 0.62rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.domain-node__diagnostic--warning {
+  border: 1px solid #f0d8a8;
+  background: #fffbeb;
+  color: #8a4b08;
+}
+
+.domain-node__diagnostic--error {
+  border: 1px solid #efc4bf;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.domain-node__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid #edf2f6;
+}
+
+.domain-node__stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 38px;
+}
+
+.domain-node__stats dt {
+  color: var(--faint);
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
+}
+
+.domain-node__stats dd {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.domain-node p.domain-node__stats {
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid #edf2f6;
+  color: var(--faint);
+  font-size: 0.64rem;
+}
+
+.domain-node__port {
+  position: absolute;
+  left: calc(100% + 10px);
+  width: max-content;
+  white-space: nowrap;
+  z-index: 2;
+  transform: translateY(-50%);
+  padding: 0 3px;
+  background: #fff;
+  font-size: 0.57rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+}
+
+.react-flow__handle.domain-node__handle {
+  width: 9px;
+  height: 9px;
+  border: 2px solid #fff;
+  background: var(--accent);
+  box-shadow: 0 0 0 1px rgb(20 33 47 / 18%);
+}
+
+/*
+ * Keep the visible 9px dot, but give it a ~28px pointer target. The
+ * pseudo-element inherits pointer-events, so locked graphs stay non-connectable.
+ */
+.react-flow__handle.domain-node__handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.react-flow__handle.domain-node__handle--target {
+  left: -5px;
+  background: #7d8fa1;
+}
+
+.react-flow__node-domain.selected .domain-node {
+  border-color: var(--accent);
+}
+
+.domain-edge-label {
+  position: absolute;
+  z-index: 1;
+  padding: 1px 5px;
+  border: 1px solid;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.58rem;
+  font-weight: 650;
+  line-height: 1.4;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.domain-edge-label.is-selected {
+  border-width: 2px;
+  font-weight: 750;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  filter: drop-shadow(0 0 2px rgb(14 116 144 / 35%));
+}
+
+.react-flow__edge {
+  cursor: pointer;
+}
+
+.react-flow__pane {
+  cursor: grab;
+}
+
+.react-flow__pane:active {
+  cursor: grabbing;
+}

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "levelId": "cold-cache",
+  "nodes": [
+    {
+      "id": "client-1",
+      "kind": "client",
+      "label": "Client",
+      "position": {
+        "x": -150,
+        "y": 80
+      },
+      "config": {
+        "size": "small",
+        "queueLimit": 128,
+        "poolSize": 8,
+        "ttlSeconds": 120,
+        "coalescing": false
+      }
+    },
+    {
+      "id": "lb-1",
+      "kind": "loadBalancer",
+      "label": "Load Balancer",
+      "position": {
+        "x": 0,
+        "y": 80
+      },
+      "config": {
+        "size": "small",
+        "queueLimit": 128,
+        "poolSize": 8,
+        "ttlSeconds": 120,
+        "coalescing": false
+      }
+    },
+    {
+      "id": "app-1",
+      "kind": "appServer",
+      "label": "App Server",
+      "position": {
+        "x": 150,
+        "y": 0
+      },
+      "config": {
+        "size": "large",
+        "queueLimit": 128,
+        "poolSize": 8,
+        "ttlSeconds": 120,
+        "coalescing": false
+      }
+    },
+    {
+      "id": "app-2",
+      "kind": "appServer",
+      "label": "App Server",
+      "position": {
+        "x": 150,
+        "y": 160
+      },
+      "config": {
+        "size": "large",
+        "queueLimit": 128,
+        "poolSize": 8,
+        "ttlSeconds": 120,
+        "coalescing": false
+      }
+    },
+    {
+      "id": "cache-1",
+      "kind": "cache",
+      "label": "Cache",
+      "position": {
+        "x": 300,
+        "y": -60
+      },
+      "config": {
+        "size": "large",
+        "queueLimit": 128,
+        "poolSize": 8,
+        "ttlSeconds": 120,
+        "coalescing": true
+      }
+    },
+    {
+      "id": "db-1",
+      "kind": "database",
+      "label": "Database",
+      "position": {
+        "x": 450,
+        "y": 80
+      },
+      "config": {
+        "size": "large",
+        "queueLimit": 128,
+        "poolSize": 8,
+        "ttlSeconds": 120,
+        "coalescing": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-client-lb",
+      "source": "client-1",
+      "target": "lb-1",
+      "sourcePort": "out"
+    },
+    {
+      "id": "e-lb-app-1",
+      "source": "lb-1",
+      "target": "app-1",
+      "sourcePort": "out"
+    },
+    {
+      "id": "e-lb-app-2",
+      "source": "lb-1",
+      "target": "app-2",
+      "sourcePort": "out"
+    },
+    {
+      "id": "e-app-1-cache",
+      "source": "app-1",
+      "target": "cache-1",
+      "sourcePort": "read"
+    },
+    {
+      "id": "e-app-1-db",
+      "source": "app-1",
+      "target": "db-1",
+      "sourcePort": "write"
+    },
+    {
+      "id": "e-app-2-cache",
+      "source": "app-2",
+      "target": "cache-1",
+      "sourcePort": "read"
+    },
+    {
+      "id": "e-app-2-db",
+      "source": "app-2",
+      "target": "db-1",
+      "sourcePort": "write"
+    },
+    {
+      "id": "e-cache-db",
+      "source": "cache-1",
+      "target": "db-1",
+      "sourcePort": "miss"
+    }
+  ]
+}

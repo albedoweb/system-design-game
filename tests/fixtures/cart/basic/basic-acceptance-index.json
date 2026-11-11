@@ -1,0 +1,559 @@
+{
+ "sourceSha": "b9bb0746af21a0ca127754ac15822ccb6aff27dc",
+ "referenceDigest": "5fd224660fc3fa475a6065c158707b5e16b27423bab3a20aebda29d7d473453d",
+ "runs": [
+  {
+   "label": "reference",
+   "seed": 1729,
+   "file": "raw/reference-seed1729.json",
+   "profile": "global-cart-v1-basic-desync100",
+   "content": "cart-content-v2-basic",
+   "graphDigest": "5fd224660fc3fa475a6065c158707b5e16b27423bab3a20aebda29d7d473453d",
+   "complete": true,
+   "qualified": true,
+   "score": 4.49562057254338,
+   "issues": [],
+   "cases": [
+    {
+     "id": "normal",
+     "scheduled": 54000,
+     "issued": 54000,
+     "complete": true,
+     "gates": 29,
+     "failedGates": 0,
+     "outcomes": {
+      "committed": 54000,
+      "cohort:local-context-edit": 27000,
+      "cohort:healthy": 27000,
+      "scheduled": 54000,
+      "issued": 54000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.03853653371334076,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 3.833579419485414
+     }
+    },
+    {
+     "id": "peak",
+     "scheduled": 78000,
+     "issued": 78000,
+     "complete": true,
+     "gates": 48,
+     "failedGates": 0,
+     "outcomes": {
+      "committed": 78000,
+      "cohort:local-context-edit": 39000,
+      "cohort:healthy": 39000,
+      "scheduled": 78000,
+      "issued": 78000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.057110466063022614,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 4.49562057254338
+     }
+    }
+   ]
+  },
+  {
+   "label": "reference",
+   "seed": 4242,
+   "file": "raw/reference-seed4242.json",
+   "profile": "global-cart-v1-basic-desync100",
+   "content": "cart-content-v2-basic",
+   "graphDigest": "5fd224660fc3fa475a6065c158707b5e16b27423bab3a20aebda29d7d473453d",
+   "complete": true,
+   "qualified": true,
+   "score": 4.495979085629529,
+   "issues": [],
+   "cases": [
+    {
+     "id": "normal",
+     "scheduled": 54000,
+     "issued": 54000,
+     "complete": true,
+     "gates": 29,
+     "failedGates": 0,
+     "outcomes": {
+      "committed": 54000,
+      "cohort:local-context-edit": 27000,
+      "cohort:healthy": 27000,
+      "scheduled": 54000,
+      "issued": 54000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.03854827582836151,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 3.8339979503178365
+     }
+    },
+    {
+     "id": "peak",
+     "scheduled": 78000,
+     "issued": 78000,
+     "complete": true,
+     "gates": 48,
+     "failedGates": 0,
+     "outcomes": {
+      "committed": 78000,
+      "cohort:local-context-edit": 39000,
+      "cohort:healthy": 39000,
+      "scheduled": 78000,
+      "issued": 78000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.05712052434682846,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 4.495979085629529
+     }
+    }
+   ]
+  },
+  {
+   "label": "control-no-read-path",
+   "seed": 1729,
+   "file": "raw/control-no-read-path-seed1729.json",
+   "profile": "global-cart-v1-basic-desync100",
+   "content": "cart-content-v2-basic",
+   "graphDigest": "960daa5d92e66e3a079d590a4bb1e250fad61c78d8c266842b7e76c5e5529ea7",
+   "complete": true,
+   "qualified": false,
+   "score": null,
+   "issues": [
+    "read_target_unreachable"
+   ],
+   "cases": [
+    {
+     "id": "normal",
+     "scheduled": 54000,
+     "issued": 54000,
+     "complete": true,
+     "gates": 28,
+     "failedGates": 5,
+     "outcomes": {
+      "committed": 45000,
+      "cohort:local-context-edit": 27000,
+      "validation-failed": 7200,
+      "cohort:healthy": 27000,
+      "dependency-failed": 1800,
+      "scheduled": 54000,
+      "issued": 54000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.03279177099466324,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 3.628815599809779
+     }
+    },
+    {
+     "id": "peak",
+     "scheduled": 78000,
+     "issued": 78000,
+     "complete": true,
+     "gates": 47,
+     "failedGates": 5,
+     "outcomes": {
+      "committed": 65000,
+      "cohort:local-context-edit": 39000,
+      "validation-failed": 10400,
+      "cohort:healthy": 39000,
+      "dependency-failed": 2600,
+      "scheduled": 78000,
+      "issued": 78000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.04856984317302704,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 4.191202330919777
+     }
+    }
+   ]
+  },
+  {
+   "label": "control-no-read-path",
+   "seed": 4242,
+   "file": "raw/control-no-read-path-seed4242.json",
+   "profile": "global-cart-v1-basic-desync100",
+   "content": "cart-content-v2-basic",
+   "graphDigest": "960daa5d92e66e3a079d590a4bb1e250fad61c78d8c266842b7e76c5e5529ea7",
+   "complete": true,
+   "qualified": false,
+   "score": null,
+   "issues": [
+    "read_target_unreachable"
+   ],
+   "cases": [
+    {
+     "id": "normal",
+     "scheduled": 54000,
+     "issued": 54000,
+     "complete": true,
+     "gates": 28,
+     "failedGates": 5,
+     "outcomes": {
+      "committed": 45000,
+      "cohort:local-context-edit": 27000,
+      "validation-failed": 7200,
+      "cohort:healthy": 27000,
+      "dependency-failed": 1800,
+      "scheduled": 54000,
+      "issued": 54000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.03279808908700943,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 3.6290407991409306
+     }
+    },
+    {
+     "id": "peak",
+     "scheduled": 78000,
+     "issued": 78000,
+     "complete": true,
+     "gates": 47,
+     "failedGates": 5,
+     "outcomes": {
+      "committed": 65000,
+      "cohort:local-context-edit": 39000,
+      "validation-failed": 10400,
+      "cohort:healthy": 39000,
+      "dependency-failed": 2600,
+      "scheduled": 78000,
+      "issued": 78000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.048581212759017944,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 4.191607583489749
+     }
+    }
+   ]
+  },
+  {
+   "label": "control-no-write-path",
+   "seed": 1729,
+   "file": "raw/control-no-write-path-seed1729.json",
+   "profile": "global-cart-v1-basic-desync100",
+   "content": "cart-content-v2-basic",
+   "graphDigest": "e412a2098e2700ef4025270092299d966d1cc8708a386637679f16db98f29f75",
+   "complete": false,
+   "qualified": false,
+   "score": null,
+   "issues": [
+    "write_target_unreachable",
+    "read_target_unreachable"
+   ],
+   "cases": [
+    {
+     "id": "normal",
+     "scheduled": 54000,
+     "issued": 54000,
+     "complete": false,
+     "gates": 25,
+     "failedGates": 17,
+     "outcomes": {
+      "rejected": 15300,
+      "cohort:local-context-edit": 18900,
+      "committed": 18000,
+      "cohort:healthy": 35100,
+      "dependency-failed": 20700,
+      "scheduled": 54000,
+      "issued": 54000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": -1
+     }
+    },
+    {
+     "id": "peak",
+     "scheduled": 78000,
+     "issued": 78000,
+     "complete": false,
+     "gates": 38,
+     "failedGates": 26,
+     "outcomes": {
+      "rejected": 22100,
+      "cohort:local-context-edit": 27300,
+      "committed": 26000,
+      "cohort:healthy": 50700,
+      "dependency-failed": 29900,
+      "scheduled": 78000,
+      "issued": 78000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": -1
+     }
+    }
+   ]
+  },
+  {
+   "label": "capacity-S-journals-inventory",
+   "seed": 1729,
+   "file": "raw/capacity-S-journals-inventory-seed1729.json",
+   "profile": "global-cart-v1-basic-desync100",
+   "content": "cart-content-v2-basic",
+   "graphDigest": "62a6e93f567561799657c5a9b543762edbf447a813fa31baeaec497b1147a612",
+   "complete": true,
+   "qualified": false,
+   "score": null,
+   "issues": [],
+   "cases": [
+    {
+     "id": "normal",
+     "scheduled": 54000,
+     "issued": 54000,
+     "complete": true,
+     "gates": 29,
+     "failedGates": 0,
+     "outcomes": {
+      "committed": 54000,
+      "cohort:local-context-edit": 27000,
+      "cohort:healthy": 27000,
+      "scheduled": 54000,
+      "issued": 54000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 1.9199999999999995,
+      "wanCredits": 0.03853653371334076,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 3.293579419485413
+     }
+    },
+    {
+     "id": "peak",
+     "scheduled": 78000,
+     "issued": 78000,
+     "complete": true,
+     "gates": 54,
+     "failedGates": 24,
+     "outcomes": {
+      "committed": 57777,
+      "cohort:local-context-edit": 38333,
+      "cohort:healthy": 39667,
+      "dependency-failed": 7595,
+      "timeout": 12628,
+      "scheduled": 78000,
+      "issued": 78000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 1.9199999999999995,
+      "wanCredits": 0.04110924061387777,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 3.38527986346495
+     }
+    }
+   ]
+  },
+  {
+   "label": "control-no-inventory-path",
+   "seed": 1729,
+   "file": "raw/control-no-inventory-path-seed1729.json",
+   "profile": "global-cart-v1-basic-desync100",
+   "content": "cart-content-v2-basic",
+   "graphDigest": "fbac0a36c95d170ad86d778aaedba333d2b231953161cab0d8f0577fe9c73d62",
+   "complete": true,
+   "qualified": false,
+   "score": null,
+   "issues": [
+    "inventory_unreachable"
+   ],
+   "cases": [
+    {
+     "id": "normal",
+     "scheduled": 54000,
+     "issued": 54000,
+     "complete": true,
+     "gates": 29,
+     "failedGates": 0,
+     "outcomes": {
+      "committed": 54000,
+      "cohort:local-context-edit": 27000,
+      "cohort:healthy": 27000,
+      "scheduled": 54000,
+      "issued": 54000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.03853653371334076,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 3.833579419485414
+     }
+    },
+    {
+     "id": "peak",
+     "scheduled": 78000,
+     "issued": 78000,
+     "complete": true,
+     "gates": 48,
+     "failedGates": 0,
+     "outcomes": {
+      "committed": 78000,
+      "cohort:local-context-edit": 39000,
+      "cohort:healthy": 39000,
+      "scheduled": 78000,
+      "issued": 78000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.057110466063022614,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 4.49562057254338
+     }
+    }
+   ]
+  },
+  {
+   "label": "control-no-inventory-path",
+   "seed": 4242,
+   "file": "raw/control-no-inventory-path-seed4242.json",
+   "profile": "global-cart-v1-basic-desync100",
+   "content": "cart-content-v2-basic",
+   "graphDigest": "fbac0a36c95d170ad86d778aaedba333d2b231953161cab0d8f0577fe9c73d62",
+   "complete": true,
+   "qualified": false,
+   "score": null,
+   "issues": [
+    "inventory_unreachable"
+   ],
+   "cases": [
+    {
+     "id": "normal",
+     "scheduled": 54000,
+     "issued": 54000,
+     "complete": true,
+     "gates": 29,
+     "failedGates": 0,
+     "outcomes": {
+      "committed": 54000,
+      "cohort:local-context-edit": 27000,
+      "cohort:healthy": 27000,
+      "scheduled": 54000,
+      "issued": 54000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.03854827582836151,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 3.8339979503178365
+     }
+    },
+    {
+     "id": "peak",
+     "scheduled": 78000,
+     "issued": 78000,
+     "complete": true,
+     "gates": 48,
+     "failedGates": 0,
+     "outcomes": {
+      "committed": 78000,
+      "cohort:local-context-edit": 39000,
+      "cohort:healthy": 39000,
+      "scheduled": 78000,
+      "issued": 78000,
+      "auditFailures": 0,
+      "probeOracleAudited": 0,
+      "probeOracleFailures": 0
+     },
+     "cost": {
+      "rentalPerHour": 2.46,
+      "wanCredits": 0.05712052434682846,
+      "preparationSeconds": 0,
+      "drainSeconds": 0,
+      "windowSeconds": 101,
+      "peakScoreCreditsPerHour": 4.495979085629529
+     }
+    }
+   ]
+  }
+ ]
+}

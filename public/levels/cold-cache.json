@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": "1.0.0",
+  "modelVersion": "1.0.0",
+  "pricingVersion": "catalog-v1",
+  "id": "cold-cache",
+  "title": "Cold Cache",
+  "description": "The evening peak is already under way when the operator flushes the shared catalog cache. The database is healthy: keep responses and latency inside the SLO without buying extra capacity. Budget — $5.50/hour of the in-game price.",
+  "durationMs": 60000,
+  "warmupMs": 5000,
+  "flushAtMs": 30000,
+  "drainMs": 800,
+  "deadlineMs": 800,
+  "budgetMicroUsdPerHour": 5500000,
+  "workloads": {
+    "read": {
+      "schedule": [
+        { "atMs": 0, "rps": 285 },
+        { "atMs": 20000, "rps": 855 },
+        { "atMs": 45000, "rps": 285 }
+      ],
+      "keySpace": 5000,
+      "hotCount": 128,
+      "hotProbability": 0.95
+    },
+    "write": {
+      "schedule": [
+        { "atMs": 0, "rps": 15 },
+        { "atMs": 20000, "rps": 45 },
+        { "atMs": 45000, "rps": 15 }
+      ],
+      "keySpace": 5000
+    }
+  },
+  "timing": {
+    "clientRttMs": 10,
+    "edgeRttMs": 2,
+    "appCpuMs": 2,
+    "cacheLookupMs": 1,
+    "dbReadMs": 16,
+    "dbWriteMs": 32,
+    "lbMs": 1,
+    "invalidationMs": 2
+  },
+  "slo": {
+    "availability": 0.995,
+    "readP95Ms": 150,
+    "writeP95Ms": 200,
+    "criticalFromMs": 30000,
+    "criticalToMs": 35000,
+    "criticalAvailability": 0.99,
+    "criticalReadP95Ms": 200,
+    "criticalWriteP95Ms": 250
+  },
+  "defaultSeed": 101,
+  "refs": {
+    "pricingCatalog": "catalog-v1",
+    "calibrationSeeds": [101, 211, 307, 401, 503],
+    "holdoutSeeds": [607, 701]
+  }
+}
