@@ -17,6 +17,16 @@
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary" />
     <title>Global Cart — System Design Game</title>
+    <!-- Cookieless page-view analytics (Cloudflare Web Analytics), loaded on the public site only. -->
+    <script>
+      if (location.hostname === 'albedoweb.github.io') {
+        var beacon = document.createElement('script');
+        beacon.defer = true;
+        beacon.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+        beacon.setAttribute('data-cf-beacon', '{"token": "1341a62f527541a88594257044381a43"}');
+        document.head.appendChild(beacon);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

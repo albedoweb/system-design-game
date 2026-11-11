@@ -28,6 +28,9 @@ component or circuit was overloaded, with the measured queue wait.
 Nothing is saved automatically and no account or server is needed. Use
 **Export** and **Import** to keep a design as a file.
 
+The public site counts page views with Cloudflare Web Analytics, which sets no
+cookies. Designs and results never leave your browser.
+
 ## Run it locally
 
 Requires Node.js 24 (see `.node-version`).
