@@ -50,8 +50,8 @@ function uniqueIssues(issues: CartIssue[]): CartIssue[] {
   });
 }
 
-export function CartWorkspace({runControls, telemetry, onExport = () => {}, onImport = () => {}, resultsAction, revealNonce = 0, telemetryActive, runActive, hotspots}: {
-  runControls?: ReactNode; telemetry?: ReactNode; onExport?: () => void; onImport?: () => void; resultsAction?: ReactNode; revealNonce?: number;
+export function CartWorkspace({runControls, telemetry, onExport = () => {}, onCopyLink, onImport = () => {}, resultsAction, revealNonce = 0, telemetryActive, runActive, hotspots}: {
+  runControls?: ReactNode; telemetry?: ReactNode; onExport?: () => void; onCopyLink?: () => void; onImport?: () => void; resultsAction?: ReactNode; revealNonce?: number;
   /** True once a run has started or a result exists; the telemetry panel stays collapsed until then. */
   telemetryActive?: boolean;
   /** True while a run is advancing (not paused); the canvas shows traffic moving along paths. */
@@ -256,7 +256,7 @@ export function CartWorkspace({runControls, telemetry, onExport = () => {}, onIm
               </Button>}
               onToggleRight={() => {setRightOpen(!rightOpen); setLeftOpen(false);}}
               canUndo={canUndo} canRedo={canRedo} onUndo={undo} onRedo={redo}
-              locked={false} onConnect={() => openConnect()} onExport={onExport} onImport={onImport}
+              locked={false} onConnect={() => openConnect()} onExport={onExport} onCopyLink={onCopyLink} onImport={onImport}
               onReset={() => setResetOpen(true)} panelToggles="always" rightActions={resultsAction} />
           </>
         }

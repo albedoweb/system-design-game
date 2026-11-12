@@ -5,6 +5,7 @@ import {
   PanelRight,
   Redo2,
   RotateCcw,
+  Share2,
   Undo2,
   Upload,
 } from 'lucide-react';
@@ -26,6 +27,8 @@ export interface WorkspaceToolbarProps {
   locked: boolean;
   onConnect: () => void;
   onExport: () => void;
+  /** Optional link action rendered after Export (only the Cart level uses it). */
+  onCopyLink?: () => void;
   onImport: () => void;
   onReset: () => void;
   /** Level-specific graph actions rendered after Connect (e.g. region layout). */
@@ -65,6 +68,7 @@ export function WorkspaceToolbar({
   locked,
   onConnect,
   onExport,
+  onCopyLink,
   onImport,
   onReset,
   leftActions,
@@ -143,6 +147,17 @@ export function WorkspaceToolbar({
         >
           Export
         </Button>
+        {onCopyLink ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<Share2 size={15} />}
+            title="Copy a link that opens this design. Nothing is saved automatically."
+            onClick={onCopyLink}
+          >
+            Copy link
+          </Button>
+        ) : null}
         <Button
           variant="ghost"
           size="sm"

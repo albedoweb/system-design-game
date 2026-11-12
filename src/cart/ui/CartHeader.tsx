@@ -11,7 +11,8 @@ import { cartCaseLabel, cartRankingEligible } from './cart-diagnostics';
 import { cartHotspots } from './cart-hotspots';
 import { cartIssueText } from './cart-issue-text';
 import { createCartRunController } from './cart-run-controller';
-import { downloadCartState, parseCartState } from './cart-persistence';
+import { downloadCartState, parseCartState, serializeCartState } from './cart-persistence';
+import { buildCartShareUrl, loadCartShareData, readCartShareData } from './cart-share-link';
 import { useCartStore } from './cart-store';
 import './cart-header.css';
 
@@ -45,6 +46,33 @@ export function CartHeader() {
     : cartRankingEligible(evaluation) ? 'pass' : 'fail';
   const importGeneration = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  /** Set only when the clipboard is unavailable, so the player can copy the link by hand. */
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+
+  // Open a design link once per page load. Loading goes through the same
+  // parseCartState validation as Import; the fragment is removed afterwards.
+  useEffect(() => {
+    const data = readCartShareData(window.location.hash);
+    if (data === null) return;
+    let cancelled = false;
+    const generation = ++importGeneration.current;
+    void (async () => {
+      const outcome = await loadCartShareData(data, () => generation === importGeneration.current);
+      // An unmounted or StrictMode-superseded run leaves the work to the run that is still current.
+      if (cancelled) return;
+      // Every outcome that reaches this point removes the fragment and reports a message.
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+      if (outcome.kind === 'loaded') {
+        useCartStore.getState().replaceGraph(outcome.graph);
+        setMessage('Design loaded from link. Ready to run');
+      } else if (outcome.kind === 'failed') {
+        setMessage(outcome.message);
+      } else {
+        setMessage('The design from the link was not loaded because the editor was changed while it was opening. Open the link again to load it.');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = useCartStore.subscribe((state, previous) => {
@@ -138,9 +166,23 @@ export function CartHeader() {
     try { downloadCartState(graph); setMessage('Design exported.'); }
     catch { setMessage('Could not export the design.'); }
   };
+  /** Builds the link only on this explicit press; nothing updates the address bar while editing. */
+  const copyLink = async () => {
+    let exported: string;
+    try { exported = serializeCartState(graph); }
+    catch { setMessage('Could not copy the link.'); return; }
+    const built = await buildCartShareUrl(`${window.location.origin}${window.location.pathname}${window.location.search}`, exported);
+    if (!built.ok) { setMessage(built.message); return; }
+    try {
+      await navigator.clipboard.writeText(built.url);
+      setMessage('Design link copied to the clipboard.');
+    } catch {
+      setShareUrl(built.url);
+    }
+  };
   return (
     <>
-      <CartWorkspace onExport={exportDesign} onImport={() => fileInputRef.current?.click()}
+      <CartWorkspace onExport={exportDesign} onCopyLink={() => { void copyLink(); }} onImport={() => fileInputRef.current?.click()}
         runActive={running && !paused && !stopping} hotspots={hotspots}
         resultsAction={<Button disabled={!evaluation} onClick={() => setResultsOpen(true)}>Results</Button>}
         runControls={<>
@@ -236,6 +278,16 @@ export function CartHeader() {
         </div>
       ) : null}
       </div>} />
+      {shareUrl ? (
+        <Modal title="Copy design link" onClose={() => setShareUrl(null)}>
+          <p>Your browser could not copy the link automatically. Copy it from the field below.</p>
+          <input className="ui-input cart-share-link__field" type="text" readOnly aria-label="Design link"
+            value={shareUrl} autoFocus onFocus={(event) => event.currentTarget.select()} />
+          <div className="cart-reset__actions">
+            <Button variant="ghost" onClick={() => setShareUrl(null)}>Close</Button>
+          </div>
+        </Modal>
+      ) : null}
       {resultsOpen && evaluation ? (
         <Modal title="Global Cart results" onClose={() => setResultsOpen(false)}>
           <div className="cart-results-modal__scroll">

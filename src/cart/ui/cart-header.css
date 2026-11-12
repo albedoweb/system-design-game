@@ -1,6 +1,13 @@
 /* Global Cart run header, telemetry summary and results modal.
    Plain CSS. Only the theme tokens from cart-theme.css are used. */
 
+/* Fallback field shown when the clipboard is unavailable for a design link. */
+.cart-share-link__field {
+  width: 100%;
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+}
+
 /* Toolbar: title left; Seed, Run, Pause and Stop grouped right; status pill. */
 .cart-toolbar {
   gap: 10px 12px;
